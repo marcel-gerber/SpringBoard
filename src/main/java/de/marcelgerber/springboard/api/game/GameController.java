@@ -1,5 +1,7 @@
 package de.marcelgerber.springboard.api.game;
 
+import de.marcelgerber.springboard.api.game.dto.CreateGameDto;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -7,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 public class GameController {
 
     /**
+     * GET /api/games
      * Retrieves all games
      *
      * @return
@@ -17,6 +20,7 @@ public class GameController {
     }
 
     /**
+     * GET /api/games/{gameId}
      * Retrieves a status of a specific game
      *
      * @param gameId
@@ -28,27 +32,30 @@ public class GameController {
     }
 
     /**
+     * POST /api/games
      * Creates a new game
      *
      * @return
      */
-    @PostMapping("/create")
-    public String createGame() {
-        return "called POST /api/games/create";
+    @PostMapping()
+    public String createGame(@Valid @RequestBody CreateGameDto createGameDto) {
+        return "called POST /api/games";
     }
 
     /**
-     * For a player to join a game
+     * POST /api/games/{gameId}
+     * Joins an existing game
      *
      * @param gameId
      * @return
      */
-    @PostMapping("/{gameId}/join")
+    @PostMapping("/{gameId}")
     public String joinGame(@PathVariable int gameId) {
-        return "called POST /api/games/" + gameId + "/join";
+        return "called POST /api/games/" + gameId;
     }
 
     /**
+     * POST /api/games/{gameId}/move
      * Plays a move in a specific game
      *
      * @param gameId
@@ -60,6 +67,7 @@ public class GameController {
     }
 
     /**
+     * GET /api/games/{gameId}/moves
      * Retrieves all moves made in a specific game
      *
      * @param gameId
