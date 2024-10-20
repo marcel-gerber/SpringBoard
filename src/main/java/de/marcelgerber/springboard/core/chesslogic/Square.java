@@ -1,18 +1,95 @@
 package de.marcelgerber.springboard.core.chesslogic;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 /**
- * Class for representing a square on the board.
- * We will be using the "Little-Endian Rank-File Mapping" (LERF).
- * More information here: <a href="https://www.chessprogramming.org/Square_Mapping_Considerations">chessprogramming</a>
+ * Class for representing a square on the board
  */
-public enum Square {
-    A1, B1, C1, D1, E1, F1, G1, H1,
-    A2, B2, C2, D2, E2, F2, G2, H2,
-    A3, B3, C3, D3, E3, F3, G3, H3,
-    A4, B4, C4, D4, E4, F4, G4, H4,
-    A5, B5, C5, D5, E5, F5, G5, H5,
-    A6, B6, C6, D6, E6, F6, G6, H6,
-    A7, B7, C7, D7, E7, F7, G7, H7,
-    A8, B8, C8, D8, E8, F8, G8, H8,
-    NONE
+@Data
+@AllArgsConstructor
+public class Square {
+
+    private SquareValue value;
+
+    // Copy constructor
+    public Square(Square square) {
+        this.value = square.getValue();
+    }
+
+    public Square(final byte index) {
+        value = SquareValue.get(index);
+    }
+
+    public Square(String string) {
+        if(string.equals("-")) {
+            value = SquareValue.NONE;
+            return;
+        }
+
+        byte index = (byte) ((string.charAt(0) - 'a') + ((string.charAt(1) - '1') * 8));
+        value = SquareValue.get(index);
+    }
+
+    /**
+     * Adds a direction to the square and updates its index
+     *
+     * @param direction Direction
+     */
+    public void plus(Direction direction) {
+        byte newIndex = (byte) (getIndex() + direction.getValue());
+        value = SquareValue.get(newIndex);
+    }
+
+    /**
+     * Returns the index of the square in a LERF mapping
+     *
+     * @return byte
+     */
+    public byte getIndex() {
+        return (byte) value.ordinal();
+    }
+
+    /**
+     * Returns the file index of the square
+     *
+     * @return byte
+     */
+    public byte GetFileIndex() {
+        return (byte) (getIndex() & 7);
+    }
+
+    /**
+     * Returns the rank index of the square
+     *
+     * @return byte
+     */
+    public byte GetRankIndex() {
+        return (byte) (getIndex() >> 3);
+    }
+
+    /**
+     * Returns the rank index based on the provided character
+     *
+     * @return byte
+     */
+    public static byte getRankIndex(char c) {
+        if(c >= '1' && c <= '8') {
+            return (byte) (c - '1');
+        }
+        return -1;
+    }
+
+    /**
+     * Returns the file index based on the provided character
+     *
+     * @return byte
+     */
+    public static byte getFileIndex(char c) {
+        if (c >= 'a' && c <= 'h') {
+            return (byte) (c - 'a');
+        }
+        return -1;
+    }
+
 }
