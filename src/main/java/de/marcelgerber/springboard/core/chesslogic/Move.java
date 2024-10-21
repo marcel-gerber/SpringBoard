@@ -23,4 +23,15 @@ public class Move {
         this.promotion = PieceType.NONE;
     }
 
+    public Move(MoveType moveType, Square from, Square to) {
+        this.moveType = moveType;
+        this.from = from;
+        this.to = to;
+        this.promotion = PieceType.NONE;
+    }
+
+    @Override
+    public String toString() {
+        return from.toString() + to.toString() + " MoveType: " + moveType.toString() + " Promotion: " + promotion.toString();
+    }
 }

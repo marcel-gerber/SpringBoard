@@ -48,8 +48,7 @@ public abstract class Piece {
      */
     private void addAttackRay(List<Square> squares, final Direction direction, final Board board,
                              final Square from, Predicate<Square> kingCheck) {
-        Square to = new Square(from);
-        to.plus(direction);
+        Square to = Square.add(from, direction);
 
         while(to.getValue() != SquareValue.NONE) {
             if(board.isFriendly(to, this) || kingCheck.test(to)) return;
@@ -57,7 +56,7 @@ public abstract class Piece {
             squares.add(to);
 
             if(board.isOpponent(to, this)) return;
-            to.plus(direction);
+            to = Square.add(to, direction);
         }
     }
 
@@ -99,6 +98,42 @@ public abstract class Piece {
         return attacks;
     }
 
+    /**
+     * Returns the pieces' type
+     *
+     * @return PieceType
+     */
     public abstract PieceType getType();
+
+    /**
+     * Returns the pieces character
+     *
+     * @return char
+     */
+    public abstract char getChar();
+
+    /**
+     * Creates a new Piece object based on the provided character
+     *
+     * @param c Character
+     * @return Piece
+     */
+    public static Piece fromChar(char c) {
+        return switch (c) {
+            case 'P' -> new Pawn(Color.WHITE);
+            case 'N' -> new Knight(Color.WHITE);
+            case 'B' -> new Bishop(Color.WHITE);
+            case 'R' -> new Rook(Color.WHITE);
+            case 'Q' -> new Queen(Color.WHITE);
+            case 'K' -> new King(Color.WHITE);
+            case 'p' -> new Pawn(Color.BLACK);
+            case 'n' -> new Knight(Color.BLACK);
+            case 'b' -> new Bishop(Color.BLACK);
+            case 'r' -> new Rook(Color.BLACK);
+            case 'q' -> new Queen(Color.BLACK);
+            case 'k' -> new King(Color.BLACK);
+            default -> NullPiece.getInstance();
+        };
+    }
 
 }

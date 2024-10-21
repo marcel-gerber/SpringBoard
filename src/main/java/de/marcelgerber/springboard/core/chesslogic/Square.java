@@ -32,13 +32,20 @@ public class Square {
     }
 
     /**
-     * Adds a direction to the square and updates its index
+     * Adds a direction to the square and returns a new Square
      *
+     * @param square Square
      * @param direction Direction
+     * @return Square
      */
-    public void plus(Direction direction) {
-        byte newIndex = (byte) (getIndex() + direction.getValue());
-        value = SquareValue.get(newIndex);
+    public static Square add(Square square, Direction direction) {
+        byte targetIndex = (byte) (square.getIndex() + direction.getValue());
+        Square targetSquare = new Square(targetIndex);
+
+        if(Math.abs(square.getFileIndex() - targetSquare.getFileIndex()) > 2) {
+            return new Square(SquareValue.NONE);
+        }
+        return targetSquare;
     }
 
     /**
@@ -55,7 +62,7 @@ public class Square {
      *
      * @return byte
      */
-    public byte GetFileIndex() {
+    public byte getFileIndex() {
         return (byte) (getIndex() & 7);
     }
 
@@ -64,8 +71,25 @@ public class Square {
      *
      * @return byte
      */
-    public byte GetRankIndex() {
+    public byte getRankIndex() {
         return (byte) (getIndex() >> 3);
+    }
+
+    /**
+     * Converts the Square to a string
+     *
+     * @return String
+     */
+    @Override
+    public String toString() {
+        String string = "";
+
+        char file = (char) ('a' + getFileIndex());
+        char rank = (char) ('1' + getRankIndex());
+
+        string += file;
+        string += rank;
+        return string;
     }
 
     /**

@@ -4,43 +4,42 @@ import de.marcelgerber.springboard.core.chesslogic.Board;
 import de.marcelgerber.springboard.core.chesslogic.Color;
 import de.marcelgerber.springboard.core.chesslogic.Move;
 import de.marcelgerber.springboard.core.chesslogic.Square;
-import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementation of the Null Object pattern. Represents an emtpy square on the board
+ * Represents a bishop in a chess game
  */
-public class NullPiece extends Piece {
+public class Bishop extends Piece {
 
-    private static final List<Move> emptyMoves = new ArrayList<>();
-    private static final List<Square> emptySquares = new ArrayList<>();
-
-    @Getter
-    private static final NullPiece instance = new NullPiece();
-
-    private NullPiece() {
-        super(Color.NONE);
+    public Bishop(Color color) {
+        super(color);
     }
 
     @Override
     public List<Move> getPseudoLegalMoves(Board board, Square from) {
-        return emptyMoves;
+        List<Move> legalMoves = new ArrayList<>();
+
+        for(Square to : super.getBishopAttacks(board, from, board::isKing)) {
+            legalMoves.add(new Move(from, to));
+        }
+
+        return legalMoves;
     }
 
     @Override
     public List<Square> getAttackedSquares(Board board, Square from) {
-        return emptySquares;
+        return super.getBishopAttacks(board, from, square -> false);
     }
 
     @Override
     public PieceType getType() {
-        return PieceType.NONE;
+        return PieceType.BISHOP;
     }
 
     @Override
     public char getChar() {
-        return ' ';
+        return this.getColor() == Color.WHITE ? 'B' : 'b';
     }
 }
