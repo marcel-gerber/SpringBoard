@@ -16,7 +16,7 @@ public class PerftTests {
         board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         board.print();
 
-        int nodes = perft(4);
+        int nodes = perft(5);
         System.out.println(nodes);
     }
 
@@ -27,11 +27,9 @@ public class PerftTests {
         List<Move> legalMoves = board.getPseudoLegalMoves();
 
         for(Move move : legalMoves) {
-//            System.out.println(move.toString());
             board.makeMove(move);
 
             if(!board.isCheck()) {
-//                board.print();
                 nodes += perft(depth - 1);
             }
 

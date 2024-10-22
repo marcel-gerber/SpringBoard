@@ -16,11 +16,16 @@ import java.util.Stack;
 public class Board {
 
     @Data
-    @AllArgsConstructor
     private class StateInfo {
         private Castling castling;
         private Square enPassant;
         private Piece captured;
+
+        public StateInfo(Castling castling, Square enPassant, Piece captured) {
+            this.castling = new Castling(castling);
+            this.enPassant = new Square(enPassant);
+            this.captured = captured;
+        }
     }
 
     private final Piece[] pieces;
@@ -271,7 +276,7 @@ public class Board {
             if(Math.abs(from.getIndex() - to.getIndex()) == 16) {
                 if(isEnPassantPossible(to, moved)) {
                     int enPassantIndex = to.getIndex() ^ 8;
-                    enPassantSquare = new Square((byte) enPassantIndex);
+                    this.enPassant = new Square((byte) enPassantIndex);
                 }
             }
         }
@@ -366,9 +371,9 @@ public class Board {
 
         if(moveType == MoveType.ENPASSANT) {
             Pawn pawn = new Pawn(sideToMove.getOpposite());
-            int pawnIndex = enPassant.getIndex() ^ 8;
+            byte pawnIndex = (byte) (enPassant.getIndex() ^ 8);
 
-            placePiece((byte) pawnIndex, pawn);
+            placePiece(pawnIndex, pawn);
             return;
         }
 
