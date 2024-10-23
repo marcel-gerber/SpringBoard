@@ -248,8 +248,8 @@ public class Board {
         StateInfo stateInfo = new StateInfo(castling, enPassantSquare, captured);
         prevStates.push(stateInfo);
 
-        if(enPassantSquare.getValue() != SquareValue.NONE) {
-            enPassantSquare.setValue(SquareValue.NONE);
+        if(this.enPassant.getValue() != SquareValue.NONE) {
+            this.enPassant.setValue(SquareValue.NONE);
         }
 
         if(!(captured instanceof NullPiece)) {
@@ -257,17 +257,17 @@ public class Board {
 
             if(captured instanceof Rook) {
                 CastlingValue castlingValue = Castling.fromRookSourceIndex(to.getIndex());
-                castling.unSet(castlingValue);
+                this.castling.unSet(castlingValue);
             }
         }
 
-        if(castling.has(sideToMove)) {
+        if(this.castling.has(sideToMove)) {
             if(moved instanceof King) {
-                castling.unSet(sideToMove);
+                this.castling.unSet(sideToMove);
             }
             else if(moved instanceof Rook) {
                 CastlingValue castlingValue = Castling.fromRookSourceIndex(from.getIndex());
-                castling.unSet(castlingValue);
+                this.castling.unSet(castlingValue);
             }
         }
 

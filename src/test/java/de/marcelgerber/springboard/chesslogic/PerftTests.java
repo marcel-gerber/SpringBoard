@@ -13,10 +13,10 @@ public class PerftTests {
     @Test
     public void run() {
         board = new Board();
-        board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        board.setFen("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1");
         board.print();
 
-        int nodes = perft(5);
+        int nodes = perft(3);
         System.out.println(nodes);
     }
 

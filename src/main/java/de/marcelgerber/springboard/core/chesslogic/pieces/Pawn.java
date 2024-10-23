@@ -79,7 +79,7 @@ public class Pawn extends Piece {
 
             if(attackedSquare.getValue() == SquareValue.NONE) continue;
 
-            if(board.isOpponent(attackedSquare, this)) {
+            if(board.isEmptyOrOpponent(attackedSquare, this)) {
                 attackedSquares.add(attackedSquare);
             }
         }
