@@ -1,7 +1,6 @@
 package de.marcelgerber.springboard.core.chesslogic;
 
 import de.marcelgerber.springboard.core.chesslogic.pieces.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 
@@ -20,11 +19,13 @@ public class Board {
         private Castling castling;
         private Square enPassant;
         private Piece captured;
+        private byte halfMoveCounter;
 
-        public StateInfo(Castling castling, Square enPassant, Piece captured) {
+        public StateInfo(Castling castling, Square enPassant, Piece captured, byte halfMoveCounter) {
             this.castling = new Castling(castling);
             this.enPassant = new Square(enPassant);
             this.captured = captured;
+            this.halfMoveCounter = halfMoveCounter;
         }
     }
 
@@ -32,6 +33,8 @@ public class Board {
     private Color sideToMove;
     private Castling castling;
     private Square enPassant;
+    private byte halfMoveCounter;
+    private int plies;
 
     // All previous states of the board will be saved in here
     private final Stack<StateInfo> prevStates = new Stack<>();
@@ -41,6 +44,8 @@ public class Board {
         sideToMove = Color.WHITE;
         castling = new Castling();
         enPassant = new Square(SquareValue.NONE);
+        halfMoveCounter = 0;
+        plies = 0;
 
         init();
     }
@@ -245,14 +250,19 @@ public class Board {
         Castling castling = new Castling(this.castling);
         Square enPassantSquare = new Square(this.enPassant);
 
-        StateInfo stateInfo = new StateInfo(castling, enPassantSquare, captured);
+        StateInfo stateInfo = new StateInfo(castling, enPassantSquare, captured, this.halfMoveCounter);
         prevStates.push(stateInfo);
+
+        this.halfMoveCounter++;
+        this.plies++;
 
         if(this.enPassant.getValue() != SquareValue.NONE) {
             this.enPassant.setValue(SquareValue.NONE);
         }
 
+        // Played move is a capture
         if(!(captured instanceof NullPiece)) {
+            this.halfMoveCounter = 0;
             removePiece(to.getIndex());
 
             if(captured instanceof Rook) {
@@ -272,6 +282,7 @@ public class Board {
         }
 
         if(moved instanceof Pawn) {
+            this.halfMoveCounter = 0;
             // Double push
             if(Math.abs(from.getIndex() - to.getIndex()) == 16) {
                 if(isEnPassantPossible(to, moved)) {
@@ -326,9 +337,11 @@ public class Board {
 
         this.castling = stateInfo.getCastling();
         this.enPassant = stateInfo.getEnPassant();
+        this.halfMoveCounter = stateInfo.getHalfMoveCounter();
         Piece captured = stateInfo.getCaptured();
 
         sideToMove = sideToMove.getOpposite();
+        this.plies--;
 
         Square from = move.getFrom();
         Square to = move.getTo();
@@ -459,6 +472,73 @@ public class Board {
     }
 
     /**
+     * Returns the boards' full move counter
+     *
+     * @return int
+     */
+    public int getFullMoveCounter() {
+        return 1 + plies / 2;
+    }
+
+    /**
+     * Returns the current board position as a FEN string
+     *
+     * @return FEN string
+     */
+    public String getFen() {
+        StringBuilder fen = new StringBuilder();
+
+        for(byte rank = 7; rank >= 0; rank--) {
+            int emptySquares = 0;
+
+            for(byte file = 0; file < 8; file++) {
+                byte index = (byte) (rank * 8 + file);
+                Piece piece = getPiece(index);
+
+                if(piece == NullPiece.getInstance()) {
+                    emptySquares++;
+                }
+                else {
+                    if(emptySquares > 0) {
+                        fen.append(emptySquares);
+                        emptySquares = 0;
+                    }
+                    fen.append(piece.getChar());
+                }
+            }
+
+            if(emptySquares > 0) {
+                fen.append(emptySquares);
+            }
+
+            if(rank > 0) {
+                fen.append("/");
+            }
+        }
+
+        // Append side to move
+        char colorToMove = this.sideToMove == Color.WHITE ? 'w' : 'b';
+        fen.append(" ");
+        fen.append(colorToMove);
+
+        // Append castling rights
+        fen.append(" ");
+        fen.append(this.castling.toString());
+
+        // Append en passant square
+        fen.append(" ");
+        fen.append(this.enPassant.toString());
+
+        // Append half and full move counter
+        fen.append(" ");
+        fen.append(this.halfMoveCounter);
+        fen.append(" ");
+        fen.append(getFullMoveCounter());
+
+        return fen.toString();
+    }
+
+    /**
      * Sets the board position based on the provided FEN string
      *
      * @param fen String
@@ -469,9 +549,16 @@ public class Board {
         String sideToMove = split.length > 1 ? split[1] : "w";
         String castling = split.length > 2 ? split[2] : "-";
         String enPassant = split.length > 3 ? split[3] : "-";
+        String halfMove = split.length > 4 ? split[4] : "0";
+        String fullMove = split.length > 5 ? split[5] : "1";
 
         this.sideToMove = sideToMove.equals("w") ? Color.WHITE : Color.BLACK;
         this.enPassant = new Square(enPassant);
+        this.halfMoveCounter = Byte.parseByte(halfMove);
+        this.plies = Integer.parseInt(fullMove);
+        this.plies = this.plies * 2 - 2;
+
+        if(this.sideToMove == Color.BLACK) this.plies++;
 
         byte index = 56;
         for(char c : pieces.toCharArray()) {
@@ -509,6 +596,19 @@ public class Board {
         for(byte i = 0; i < 64; i++) {
             pieces[i] = NullPiece.getInstance();
         }
+    }
+
+    /**
+     * Resets all the boards' data
+     */
+    public void reset() {
+        init();
+        this.sideToMove = Color.WHITE;
+        this.castling.reset();
+        this.enPassant.setValue(SquareValue.NONE);
+        this.halfMoveCounter = 0;
+        this.plies = 0;
+        this.prevStates.clear();
     }
 
     /**
