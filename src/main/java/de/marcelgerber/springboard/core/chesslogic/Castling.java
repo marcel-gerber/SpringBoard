@@ -22,11 +22,11 @@ public class Castling {
     private static final byte[] white000EmptySquares = { 1, 2, 3 };
 
     // These squares are not allowed to be attacked by the enemy
-    private static final byte[] black00NotAttacked = { 61, 62 };
-    private static final byte[] black000NotAttacked = { 58, 59 };
+    private static final byte[] black00NotAttacked = { 60, 61, 62 };
+    private static final byte[] black000NotAttacked = { 58, 59, 60 };
 
-    private static final byte[] white00NotAttacked = { 5, 6 };
-    private static final byte[] white000NotAttacked = { 2, 3 };
+    private static final byte[] white00NotAttacked = { 4, 5, 6 };
+    private static final byte[] white000NotAttacked = { 2, 3, 4 };
 
     public Castling() {
         castlingRights = CastlingValue.NO_CASTLING.getValue();
@@ -231,6 +231,27 @@ public class Castling {
             case CastlingValue.WHITE_000 -> white000NotAttacked;
             default -> throw new IllegalStateException("Unexpected value: " + castlingValue);
         };
+    }
+
+    /**
+     * Resets the castling rights
+     */
+    public void reset() {
+        this.castlingRights = 0;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if(hasNoCastling()) return "-";
+
+        if(has(CastlingValue.WHITE_00)) stringBuilder.append("K");
+        if(has(CastlingValue.WHITE_000)) stringBuilder.append("Q");
+        if(has(CastlingValue.BLACK_00)) stringBuilder.append("k");
+        if(has(CastlingValue.BLACK_000)) stringBuilder.append("q");
+
+        return stringBuilder.toString();
     }
 
 }
