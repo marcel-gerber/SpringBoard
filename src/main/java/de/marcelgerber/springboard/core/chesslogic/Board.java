@@ -544,6 +544,8 @@ public class Board {
      * @param fen String
      */
     public void setFen(String fen) {
+        reset();
+
         String[] split = fen.split(" ");
         String pieces = split[0];
         String sideToMove = split.length > 1 ? split[1] : "w";
