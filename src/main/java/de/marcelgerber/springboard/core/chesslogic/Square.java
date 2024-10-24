@@ -82,6 +82,8 @@ public class Square {
      */
     @Override
     public String toString() {
+        if(value == SquareValue.NONE) return "-";
+
         String string = "";
 
         char file = (char) ('a' + getFileIndex());
