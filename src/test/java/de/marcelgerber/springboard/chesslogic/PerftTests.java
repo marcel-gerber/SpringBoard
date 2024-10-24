@@ -50,16 +50,17 @@ public class PerftTests {
     public void standardPositions() {
         for(PerftResult perftResult : STANDARD_POSITIONS) {
             board.setFen(perftResult.fen());
-            assertEquals(perftResult.nodes(), perft(perftResult.depth()), "Perft Test failed! FEN: " + perftResult.fen());
+            assertEquals(perftResult.nodes(), perft(perftResult.depth()), "standardPositions Test failed! FEN: "
+                    + perftResult.fen());
         }
     }
 
     @Test
     public void advancedPositions() {
         for(PerftResult perftResult : ADVANCED_POSITIONS) {
-            board.reset();
             board.setFen(perftResult.fen());
-            assertEquals(perftResult.nodes(), perft(perftResult.depth()), "Perft Test failed! FEN: " + perftResult.fen());
+            assertEquals(perftResult.nodes(), perft(perftResult.depth()), "advancedPositions Test failed! FEN: "
+                    + perftResult.fen());
         }
     }
 
