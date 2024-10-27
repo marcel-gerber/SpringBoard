@@ -1,12 +1,21 @@
 package de.marcelgerber.springboard.api.game;
 
 import de.marcelgerber.springboard.api.game.dto.CreateGameDto;
+import de.marcelgerber.springboard.core.GameService;
+import de.marcelgerber.springboard.persistence.documents.GameDocument;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/games")
 public class GameController {
+
+    private final GameService gameService;
+
+    public GameController(GameService gameService) {
+        this.gameService = gameService;
+    }
 
     /**
      * GET /api/games
@@ -35,11 +44,11 @@ public class GameController {
      * POST /api/games
      * Creates a new game
      *
-     * @return
+     * @return ResponseEntity with GameDocument
      */
     @PostMapping()
-    public String createGame(@Valid @RequestBody CreateGameDto createGameDto) {
-        return "called POST /api/games";
+    public ResponseEntity<GameDocument> createGame(@Valid @RequestBody CreateGameDto createGameDto) {
+        return ResponseEntity.ok(gameService.createGame());
     }
 
     /**
