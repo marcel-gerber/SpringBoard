@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/games")
 public class GameController {
@@ -21,23 +23,27 @@ public class GameController {
      * GET /api/games
      * Retrieves all games
      *
-     * @return
+     * @return ResponseEntity with List of GameDocuments
      */
     @GetMapping
-    public String getGames() {
-        return "called GET /api/games";
+    public ResponseEntity<List<GameDocument>> getAllGames() {
+        return ResponseEntity.ok(gameService.getAllGames());
     }
 
     /**
      * GET /api/games/{gameId}
-     * Retrieves a status of a specific game
+     * Retrieves a specific game
      *
-     * @param gameId
-     * @return
+     * @param gameId String
+     * @return ResponseEntity with GameDocument
      */
     @GetMapping("/{gameId}")
-    public String getGameStatus(@PathVariable int gameId) {
-        return "called GET /api/games/" + gameId;
+    public ResponseEntity<GameDocument> getGame(@PathVariable String gameId) {
+        GameDocument gameDocument = gameService.getGameById(gameId);
+        if(gameDocument == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(gameDocument);
     }
 
     /**
@@ -48,18 +54,19 @@ public class GameController {
      */
     @PostMapping()
     public ResponseEntity<GameDocument> createGame(@Valid @RequestBody CreateGameDto createGameDto) {
-        return ResponseEntity.ok(gameService.createGame());
+        GameDocument gameDocument = gameService.createGame(createGameDto.getColor(), createGameDto.getPlayername());
+        return ResponseEntity.ok(gameDocument);
     }
 
     /**
      * POST /api/games/{gameId}
      * Joins an existing game
      *
-     * @param gameId
+     * @param gameId String
      * @return
      */
     @PostMapping("/{gameId}")
-    public String joinGame(@PathVariable int gameId) {
+    public String joinGame(@PathVariable String gameId) {
         return "called POST /api/games/" + gameId;
     }
 
@@ -67,11 +74,11 @@ public class GameController {
      * POST /api/games/{gameId}/move
      * Plays a move in a specific game
      *
-     * @param gameId
+     * @param gameId String
      * @return
      */
     @PostMapping("/{gameId}/move")
-    public String playMove(@PathVariable int gameId) {
+    public String playMove(@PathVariable String gameId) {
         return "called POST /api/games/" + gameId + "/move";
     }
 
@@ -79,11 +86,11 @@ public class GameController {
      * GET /api/games/{gameId}/moves
      * Retrieves all moves made in a specific game
      *
-     * @param gameId
+     * @param gameId String
      * @return
      */
     @GetMapping("/{gameId}/moves")
-    public String getMoves(@PathVariable int gameId) {
+    public String getMoves(@PathVariable String gameId) {
         return "called GET /api/games/" + gameId + "/moves";
     }
 
