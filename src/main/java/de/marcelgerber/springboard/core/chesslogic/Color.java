@@ -8,6 +8,8 @@ public enum Color {
     BLACK,
     NONE;
 
+    private static final Color[] legalColors = new Color[]{WHITE, BLACK};
+
     /**
      * Returns the opposite Color
      *
@@ -19,5 +21,20 @@ public enum Color {
             case BLACK -> WHITE;
             case NONE -> NONE;
         };
+    }
+
+    /**
+     * Converts a string to a Color
+     *
+     * @param string Color as a String
+     * @return Color
+     */
+    public static Color fromString(String string) {
+        for(Color c : legalColors) {
+            if(c.toString().equalsIgnoreCase(string)) {
+                return c;
+            }
+        }
+        return NONE;
     }
 }
