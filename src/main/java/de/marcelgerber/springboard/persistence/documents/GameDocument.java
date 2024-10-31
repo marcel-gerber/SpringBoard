@@ -6,6 +6,8 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+
 /**
  * Represents a chess game in a MongoDB database
  */
@@ -19,12 +21,14 @@ public class GameDocument {
     private GameState state;
     private String playerWhite = null;
     private String playerBlack = null;
+    private ArrayList<String> moves;
 
     protected GameDocument() { }
 
     public GameDocument(Color color, String nickname) {
         this.fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         this.state = GameState.WAITING_FOR_PLAYER_TO_JOIN;
+        this.moves = new ArrayList<>();
 
         if(color == Color.WHITE) {
             this.playerWhite = nickname;
