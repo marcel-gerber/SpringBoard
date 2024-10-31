@@ -1,6 +1,7 @@
 package de.marcelgerber.springboard.api.game;
 
 import de.marcelgerber.springboard.api.game.dto.CreateGameDto;
+import de.marcelgerber.springboard.api.game.dto.PlayMoveDto;
 import de.marcelgerber.springboard.core.GameService;
 import de.marcelgerber.springboard.persistence.documents.GameDocument;
 import jakarta.validation.Valid;
@@ -71,15 +72,20 @@ public class GameController {
     }
 
     /**
-     * POST /api/games/{gameId}/move
+     * PUT /api/games/{gameId}/move
      * Plays a move in a specific game
      *
      * @param gameId String
      * @return
      */
-    @PostMapping("/{gameId}/move")
-    public String playMove(@PathVariable String gameId) {
-        return "called POST /api/games/" + gameId + "/move";
+    @PutMapping("/{gameId}/move")
+    public ResponseEntity<GameDocument> playMove(@PathVariable String gameId,
+                                                 @Valid @RequestBody PlayMoveDto playMoveDto) {
+        GameDocument gameDocument = gameService.playMove(gameId, playMoveDto.getMove());
+        if(gameDocument == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(gameDocument);
     }
 
     /**
