@@ -53,4 +53,38 @@ public class GameService {
         return gameRepository.findAll();
     }
 
+    /**
+     * Plays a move in the game and updates it
+     *
+     * @param id String
+     * @param move String
+     * @return GameDocument
+     */
+    public GameDocument playMove(String id, String move) {
+        GameDocument gameDocument = getGameById(id);
+        if(gameDocument == null) return null;
+
+        // Convert to Game and play move
+        Game game = convertToGame(gameDocument);
+        game.playMove(move);
+
+        // Update GameDocument
+        gameDocument.setFen(game.getFen());
+        gameDocument.setState(game.getGameState());
+        gameDocument.setMoves(game.getStringMoves());
+
+        return gameRepository.save(gameDocument);
+    }
+
+    /**
+     * Converts a GameDocument to a Game
+     *
+     * @param gameDocument GameDocument
+     * @return Game
+     */
+    private Game convertToGame(GameDocument gameDocument) {
+        return new Game(gameDocument.getFen(), gameDocument.getState(), gameDocument.getPlayerWhite(),
+                gameDocument.getPlayerBlack(), gameDocument.getMoves());
+    }
+
 }
