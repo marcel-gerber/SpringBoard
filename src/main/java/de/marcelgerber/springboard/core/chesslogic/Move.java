@@ -30,6 +30,27 @@ public class Move {
         this.promotion = PieceType.NONE;
     }
 
+    /**
+     * Converts the move to a "Pure Coordinate Notation"-String
+     *
+     * @return String in Pure Coordinate Notation style
+     */
+    public String toPureCoordinateNotation() {
+        if(promotion == PieceType.NONE) {
+            return from.toString() + to.toString();
+        }
+        return from.toString() + to.toString() + promotion.getChar();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof Move move)) return false;
+        return moveType == move.moveType
+                && from.getIndex() == move.from.getIndex()
+                && to.getIndex() == move.to.getIndex()
+                && promotion == move.promotion;
+    }
+
     @Override
     public String toString() {
         return from.toString() + to.toString() + " MoveType: " + moveType.toString() + " Promotion: " + promotion.toString();
