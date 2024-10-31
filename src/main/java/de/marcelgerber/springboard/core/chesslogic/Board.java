@@ -592,6 +592,13 @@ public class Board {
     }
 
     /**
+     * Sets the standard opening position
+     */
+    public void setStandardPosition() {
+        setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    }
+
+    /**
      * Initializes the board with empty pieces
      */
     private void init() {
