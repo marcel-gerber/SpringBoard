@@ -1,6 +1,6 @@
-package de.marcelgerber.springboard.core.chesslogic.pieces;
+package de.marcelgerber.springboard.core.game.chesslogic.pieces;
 
-import de.marcelgerber.springboard.core.chesslogic.Color;
+import de.marcelgerber.springboard.core.game.chesslogic.Color;
 
 /**
  * Enum containing all piece types of a chess game

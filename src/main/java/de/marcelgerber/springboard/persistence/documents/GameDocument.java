@@ -1,7 +1,7 @@
 package de.marcelgerber.springboard.persistence.documents;
 
-import de.marcelgerber.springboard.core.GameState;
-import de.marcelgerber.springboard.core.chesslogic.Color;
+import de.marcelgerber.springboard.core.game.GameState;
+import de.marcelgerber.springboard.core.game.chesslogic.Color;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

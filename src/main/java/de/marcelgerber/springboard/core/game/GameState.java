@@ -1,4 +1,4 @@
-package de.marcelgerber.springboard.core;
+package de.marcelgerber.springboard.core.game;
 
 /**
  * Represents a current game state in chess

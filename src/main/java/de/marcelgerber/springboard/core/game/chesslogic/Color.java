@@ -1,4 +1,4 @@
-package de.marcelgerber.springboard.core.chesslogic;
+package de.marcelgerber.springboard.core.game.chesslogic;
 
 /**
  * Represents a color in a chess game

@@ -1,6 +1,7 @@
-package de.marcelgerber.springboard.core.chesslogic.pieces;
+package de.marcelgerber.springboard.core.game.chesslogic.pieces;
 
 import de.marcelgerber.springboard.core.chesslogic.*;
+import de.marcelgerber.springboard.core.game.chesslogic.*;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public abstract class Piece {
      * @param kingCheck Function to check whether there is a king on the current square
      */
     private void addAttackRay(List<Square> squares, final Direction direction, final Board board,
-                             final Square from, Predicate<Square> kingCheck) {
+                              final Square from, Predicate<Square> kingCheck) {
         Square to = Square.add(from, direction);
 
         while(to.getValue() != SquareValue.NONE) {

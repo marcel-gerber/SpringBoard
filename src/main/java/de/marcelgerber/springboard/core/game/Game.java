@@ -1,11 +1,11 @@
-package de.marcelgerber.springboard.core;
+package de.marcelgerber.springboard.core.game;
 
-import de.marcelgerber.springboard.core.chesslogic.Board;
-import de.marcelgerber.springboard.core.chesslogic.Move;
-import de.marcelgerber.springboard.core.chesslogic.MoveType;
-import de.marcelgerber.springboard.core.chesslogic.Square;
-import de.marcelgerber.springboard.core.chesslogic.pieces.Piece;
-import de.marcelgerber.springboard.core.chesslogic.pieces.PieceType;
+import de.marcelgerber.springboard.core.game.chesslogic.Board;
+import de.marcelgerber.springboard.core.game.chesslogic.Move;
+import de.marcelgerber.springboard.core.game.chesslogic.MoveType;
+import de.marcelgerber.springboard.core.game.chesslogic.Square;
+import de.marcelgerber.springboard.core.game.chesslogic.pieces.Piece;
+import de.marcelgerber.springboard.core.game.chesslogic.pieces.PieceType;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -21,8 +21,8 @@ public class Game {
     private final Board board;
 
     private GameState gameState;
-    private final String playerWhite;
-    private final String playerBlack;
+    private String playerWhite;
+    private String playerBlack;
     private final ArrayList<Move> moves;
 
     public Game(String fen, GameState gameState, String playerWhite, String playerBlack, ArrayList<String> moves) {
@@ -133,6 +133,26 @@ public class Game {
             stringMoves.add(move.toPureCoordinateNotation());
         }
         return stringMoves;
+    }
+
+    /**
+     * Sets the players' name of the player who is joining the game
+     *
+     * @param playerName String
+     */
+    public void setJoiningPlayerName(String playerName) {
+        if(playerWhite == null) {
+            this.playerWhite = playerName;
+        } else {
+            this.playerBlack = playerName;
+        }
+    }
+
+    /**
+     * Sets the GameState to 'ONGOING'
+     */
+    public void setOngoing() {
+        this.gameState = GameState.ONGOING;
     }
 
     /**

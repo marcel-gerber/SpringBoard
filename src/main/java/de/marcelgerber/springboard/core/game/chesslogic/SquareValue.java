@@ -1,4 +1,4 @@
-package de.marcelgerber.springboard.core.chesslogic;
+package de.marcelgerber.springboard.core.game.chesslogic;
 
 /**
  * We will be using the "Little-Endian Rank-File Mapping" (LERF).

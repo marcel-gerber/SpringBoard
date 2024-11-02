@@ -1,6 +1,6 @@
-package de.marcelgerber.springboard.core;
+package de.marcelgerber.springboard.core.game;
 
-import de.marcelgerber.springboard.core.chesslogic.Color;
+import de.marcelgerber.springboard.core.game.chesslogic.Color;
 import de.marcelgerber.springboard.persistence.GameRepository;
 import de.marcelgerber.springboard.persistence.documents.GameDocument;
 import org.springframework.stereotype.Service;
@@ -31,6 +31,16 @@ public class GameService {
 
         GameDocument gameDocument = new GameDocument(color, nickname);
         return gameRepository.save(gameDocument);
+    }
+
+    /**
+     * Returns 'true' when a game with the provided id exists
+     *
+     * @param id String
+     * @return boolean
+     */
+    public boolean exists(String id) {
+        return gameRepository.existsById(id);
     }
 
     /**
@@ -77,6 +87,43 @@ public class GameService {
     }
 
     /**
+     * Returns all played moves in a game
+     *
+     * @param id String
+     * @return List of String-Moves
+     */
+    public List<String> getMoves(String id) {
+        GameDocument gameDocument = getGameById(id);
+        if(gameDocument == null) return null;
+        return gameDocument.getMoves();
+    }
+
+    /**
+     * Joins an existing game
+     *
+     * @param id String
+     * @param playerName String
+     * @return GameDocument
+     */
+    public GameDocument joinGame(String id, String playerName) {
+        GameDocument gameDocument = getGameById(id);
+        if(gameDocument == null) return null;
+
+        if(gameDocument.getState() != GameState.WAITING_FOR_PLAYER_TO_JOIN) {
+            throw new IllegalStateException("Game is not waiting for player to join");
+        }
+
+        // Convert to Game and update it
+        Game game = convertToGame(gameDocument);
+        game.setJoiningPlayerName(playerName);
+        game.setOngoing();
+
+        // Update GameDocument
+        updateDocument(gameDocument, game);
+        return gameRepository.save(gameDocument);
+    }
+
+    /**
      * Converts a GameDocument to a Game
      *
      * @param gameDocument GameDocument
@@ -85,6 +132,20 @@ public class GameService {
     private Game convertToGame(GameDocument gameDocument) {
         return new Game(gameDocument.getFen(), gameDocument.getState(), gameDocument.getPlayerWhite(),
                 gameDocument.getPlayerBlack(), gameDocument.getMoves());
+    }
+
+    /**
+     * Updates the provided GameDocument to the provided Games' state
+     *
+     * @param gameDocument GameDocument
+     * @param game Game
+     */
+    private void updateDocument(GameDocument gameDocument, Game game) {
+        gameDocument.setFen(game.getFen());
+        gameDocument.setState(game.getGameState());
+        gameDocument.setPlayerWhite(game.getPlayerWhite());
+        gameDocument.setPlayerBlack(game.getPlayerBlack());
+        gameDocument.setMoves(game.getStringMoves());
     }
 
 }

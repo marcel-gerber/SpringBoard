@@ -1,9 +1,9 @@
-package de.marcelgerber.springboard.core.chesslogic.pieces;
+package de.marcelgerber.springboard.core.game.chesslogic.pieces;
 
-import de.marcelgerber.springboard.core.chesslogic.Board;
-import de.marcelgerber.springboard.core.chesslogic.Color;
-import de.marcelgerber.springboard.core.chesslogic.Move;
-import de.marcelgerber.springboard.core.chesslogic.Square;
+import de.marcelgerber.springboard.core.game.chesslogic.Board;
+import de.marcelgerber.springboard.core.game.chesslogic.Color;
+import de.marcelgerber.springboard.core.game.chesslogic.Move;
+import de.marcelgerber.springboard.core.game.chesslogic.Square;
 import lombok.Getter;
 
 import java.util.ArrayList;

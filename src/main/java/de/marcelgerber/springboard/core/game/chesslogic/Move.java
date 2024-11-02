@@ -1,6 +1,6 @@
-package de.marcelgerber.springboard.core.chesslogic;
+package de.marcelgerber.springboard.core.game.chesslogic;
 
-import de.marcelgerber.springboard.core.chesslogic.pieces.PieceType;
+import de.marcelgerber.springboard.core.game.chesslogic.pieces.PieceType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
