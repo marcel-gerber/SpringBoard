@@ -1,12 +1,16 @@
 package de.marcelgerber.springboard.api.game;
 
 import de.marcelgerber.springboard.api.game.dto.CreateGameDto;
+import de.marcelgerber.springboard.api.game.dto.JoinGameDto;
 import de.marcelgerber.springboard.api.game.dto.PlayMoveDto;
-import de.marcelgerber.springboard.core.GameService;
+import de.marcelgerber.springboard.core.event.EventService;
+import de.marcelgerber.springboard.core.game.GameService;
 import de.marcelgerber.springboard.persistence.documents.GameDocument;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -15,9 +19,11 @@ import java.util.List;
 public class GameController {
 
     private final GameService gameService;
+    private final EventService eventService;
 
-    public GameController(GameService gameService) {
+    public GameController(GameService gameService, EventService eventService) {
         this.gameService = gameService;
+        this.eventService = eventService;
     }
 
     /**
@@ -64,11 +70,16 @@ public class GameController {
      * Joins an existing game
      *
      * @param gameId String
-     * @return
+     * @return ResponseEntity with GameDocument
      */
     @PostMapping("/{gameId}")
-    public String joinGame(@PathVariable String gameId) {
-        return "called POST /api/games/" + gameId;
+    public ResponseEntity<GameDocument> joinGame(@PathVariable String gameId,
+                                                 @Valid @RequestBody JoinGameDto joinGameDto) {
+        GameDocument gameDocument = gameService.joinGame(gameId, joinGameDto.getPlayername());
+        if(gameDocument == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(gameDocument);
     }
 
     /**
@@ -76,7 +87,7 @@ public class GameController {
      * Plays a move in a specific game
      *
      * @param gameId String
-     * @return
+     * @return ResponseEntity with GameDocument
      */
     @PutMapping("/{gameId}/move")
     public ResponseEntity<GameDocument> playMove(@PathVariable String gameId,
@@ -93,11 +104,27 @@ public class GameController {
      * Retrieves all moves made in a specific game
      *
      * @param gameId String
-     * @return
+     * @return ResponseEntity with List of String-Moves
      */
     @GetMapping("/{gameId}/moves")
-    public String getMoves(@PathVariable String gameId) {
-        return "called GET /api/games/" + gameId + "/moves";
+    public ResponseEntity<List<String>> getMoves(@PathVariable String gameId) {
+        List<String> moves = gameService.getMoves(gameId);
+        return ResponseEntity.ok(moves);
+    }
+
+    /**
+     * GET /api/games/{gameId}/events
+     * Subscribes to a Server-Sent-Event sending updates of a game
+     *
+     * @param gameId String
+     * @return SseEmitter
+     */
+    @GetMapping(path = "/{gameId}/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribeToGameEvents(@PathVariable String gameId) {
+        if(!gameService.exists(gameId)) {
+            throw new IllegalArgumentException("Game does not exist");
+        }
+        return eventService.createEmitter(gameId);
     }
 
 }
