@@ -1,5 +1,6 @@
 package de.marcelgerber.springboard.core.game;
 
+import de.marcelgerber.springboard.core.event.EventService;
 import de.marcelgerber.springboard.core.game.chesslogic.Color;
 import de.marcelgerber.springboard.persistence.GameRepository;
 import de.marcelgerber.springboard.persistence.documents.GameDocument;
@@ -15,9 +16,11 @@ import java.util.Optional;
 public class GameService {
 
     private final GameRepository gameRepository;
+    private final EventService eventService;
 
-    public GameService(GameRepository gameRepository) {
+    public GameService(GameRepository gameRepository, EventService eventService) {
         this.gameRepository = gameRepository;
+        this.eventService = eventService;
     }
 
     /**
@@ -82,6 +85,9 @@ public class GameService {
         gameDocument.setFen(game.getFen());
         gameDocument.setState(game.getGameState());
         gameDocument.setMoves(game.getStringMoves());
+
+        // Send move update to subscribers
+        eventService.sendMoveUpdate(id, move);
 
         return gameRepository.save(gameDocument);
     }
