@@ -1,6 +1,5 @@
 package de.marcelgerber.springboard.core.game.chesslogic.pieces;
 
-import de.marcelgerber.springboard.core.chesslogic.*;
 import de.marcelgerber.springboard.core.game.chesslogic.*;
 
 import java.util.ArrayList;
