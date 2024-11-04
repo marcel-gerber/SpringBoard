@@ -30,7 +30,7 @@ public class GameService {
      */
     public GameDocument createGame(String stringColor, String nickname) {
         Color color = Color.fromString(stringColor);
-        if(color == Color.NONE) return null;
+        if(color == Color.NONE) color = Color.WHITE;
 
         GameDocument gameDocument = new GameDocument(color, nickname);
         return gameRepository.save(gameDocument);
