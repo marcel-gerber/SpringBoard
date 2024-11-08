@@ -83,13 +83,13 @@ public class GameController {
     }
 
     /**
-     * PUT /api/games/{gameId}/move
+     * PUT /api/games/{gameId}/moves
      * Plays a move in a specific game
      *
      * @param gameId String
      * @return ResponseEntity with GameDocument
      */
-    @PutMapping("/{gameId}/move")
+    @PutMapping("/{gameId}/moves")
     public ResponseEntity<GameDocument> playMove(@PathVariable String gameId,
                                                  @Valid @RequestBody PlayMoveDto playMoveDto) {
         GameDocument gameDocument = gameService.playMove(gameId, playMoveDto.getMove());
