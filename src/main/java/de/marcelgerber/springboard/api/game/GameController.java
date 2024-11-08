@@ -5,6 +5,7 @@ import de.marcelgerber.springboard.api.game.dto.JoinGameDto;
 import de.marcelgerber.springboard.api.game.dto.PlayMoveDto;
 import de.marcelgerber.springboard.core.event.EventService;
 import de.marcelgerber.springboard.core.game.GameService;
+import de.marcelgerber.springboard.exceptions.GameNotFoundException;
 import de.marcelgerber.springboard.persistence.documents.GameDocument;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
@@ -48,7 +49,7 @@ public class GameController {
     public ResponseEntity<GameDocument> getGame(@PathVariable String gameId) {
         GameDocument gameDocument = gameService.getGameById(gameId);
         if(gameDocument == null) {
-            return ResponseEntity.notFound().build();
+            throw new GameNotFoundException(gameId);
         }
         return ResponseEntity.ok(gameDocument);
     }
@@ -77,7 +78,7 @@ public class GameController {
                                                  @Valid @RequestBody JoinGameDto joinGameDto) {
         GameDocument gameDocument = gameService.joinGame(gameId, joinGameDto.getPlayername());
         if(gameDocument == null) {
-            return ResponseEntity.notFound().build();
+            throw new GameNotFoundException(gameId);
         }
         return ResponseEntity.ok(gameDocument);
     }
@@ -94,7 +95,7 @@ public class GameController {
                                                  @Valid @RequestBody PlayMoveDto playMoveDto) {
         GameDocument gameDocument = gameService.playMove(gameId, playMoveDto.getMove());
         if(gameDocument == null) {
-            return ResponseEntity.notFound().build();
+            throw new GameNotFoundException(gameId);
         }
         return ResponseEntity.ok(gameDocument);
     }
@@ -109,6 +110,9 @@ public class GameController {
     @GetMapping("/{gameId}/moves")
     public ResponseEntity<List<String>> getMoves(@PathVariable String gameId) {
         List<String> moves = gameService.getMoves(gameId);
+        if(moves == null) {
+            throw new GameNotFoundException(gameId);
+        }
         return ResponseEntity.ok(moves);
     }
 
@@ -122,7 +126,7 @@ public class GameController {
     @GetMapping(path = "/{gameId}/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeToGameEvents(@PathVariable String gameId) {
         if(!gameService.exists(gameId)) {
-            throw new IllegalArgumentException("Game does not exist");
+            throw new GameNotFoundException(gameId);
         }
         return eventService.createEmitter(gameId);
     }
