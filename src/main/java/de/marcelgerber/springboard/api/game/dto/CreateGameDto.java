@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class CreateGameDto {
 
-    @NotEmpty(message = "playername is required")
+    @NotEmpty(message = "Key 'playername' is required")
     private String playername;
 
     private String color;

@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class PlayMoveDto {
 
-    @NotEmpty(message = "move is required")
+    @NotEmpty(message = "Key 'move' is required")
     String move;
 
 }
