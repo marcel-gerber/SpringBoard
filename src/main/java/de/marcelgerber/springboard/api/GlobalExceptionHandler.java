@@ -2,6 +2,7 @@ package de.marcelgerber.springboard.api;
 
 import de.marcelgerber.springboard.api.dto.ErrorResponse;
 import de.marcelgerber.springboard.exceptions.GameNotFoundException;
+import de.marcelgerber.springboard.exceptions.IllegalGameStateException;
 import de.marcelgerber.springboard.exceptions.IllegalMoveException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -61,6 +62,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(IllegalMoveException.class)
     public ResponseEntity<ErrorResponse> illegalMove(IllegalMoveException e) {
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Method for handling IllegalGameStateException
+     *
+     * @param e IllegalGameStateException
+     * @return ResponseEntity with ErrorResponse
+     */
+    @ExceptionHandler(IllegalGameStateException.class)
+    public ResponseEntity<ErrorResponse> illegalGameState(IllegalGameStateException e) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
