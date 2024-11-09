@@ -3,6 +3,7 @@ package de.marcelgerber.springboard.core.game;
 import de.marcelgerber.springboard.core.event.EventService;
 import de.marcelgerber.springboard.core.game.chesslogic.Color;
 import de.marcelgerber.springboard.exceptions.GameNotFoundException;
+import de.marcelgerber.springboard.exceptions.IllegalGameStateException;
 import de.marcelgerber.springboard.persistence.GameRepository;
 import de.marcelgerber.springboard.persistence.documents.GameDocument;
 import org.springframework.stereotype.Service;
@@ -115,7 +116,7 @@ public class GameService {
         GameDocument gameDocument = getGameById(id);
 
         if(gameDocument.getState() != GameState.WAITING_FOR_PLAYER_TO_JOIN) {
-            throw new IllegalStateException("Game is not waiting for player to join");
+            throw new IllegalGameStateException("Game is not waiting for player to join");
         }
 
         // Convert to Game and update it

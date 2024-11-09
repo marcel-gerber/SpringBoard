@@ -3,6 +3,7 @@ package de.marcelgerber.springboard.core.game;
 import de.marcelgerber.springboard.core.game.chesslogic.*;
 import de.marcelgerber.springboard.core.game.chesslogic.pieces.Piece;
 import de.marcelgerber.springboard.core.game.chesslogic.pieces.PieceType;
+import de.marcelgerber.springboard.exceptions.IllegalGameStateException;
 import de.marcelgerber.springboard.exceptions.IllegalMoveException;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -106,7 +107,7 @@ public class Game {
      * @param sMove String-move
      */
     public void playMove(String sMove) {
-        if(this.gameState != GameState.ONGOING) throw new IllegalMoveException("Game is not in ongoing state");
+        if(this.gameState != GameState.ONGOING) throw new IllegalGameStateException("Game is not in ongoing state");
 
         Move move = convertMove(sMove);
         if(move == null) throw new IllegalMoveException("Could not convert move: " + sMove);
