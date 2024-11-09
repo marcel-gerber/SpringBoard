@@ -2,9 +2,11 @@ package de.marcelgerber.springboard.core.game;
 
 import de.marcelgerber.springboard.core.event.EventService;
 import de.marcelgerber.springboard.core.game.chesslogic.Color;
+import de.marcelgerber.springboard.exceptions.GameNotFoundException;
 import de.marcelgerber.springboard.persistence.GameRepository;
 import de.marcelgerber.springboard.persistence.documents.GameDocument;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,11 +52,11 @@ public class GameService {
      * Finds a game by id and returns it if exists
      *
      * @param id String
-     * @return GameDocument if present 'null' otherwise
+     * @return GameDocument if present
      */
     public GameDocument getGameById(String id) {
         Optional<GameDocument> gameDocument = gameRepository.findById(id);
-        return gameDocument.orElse(null);
+        return gameDocument.orElseThrow(() -> new GameNotFoundException(id));
     }
 
     /**
@@ -75,7 +77,6 @@ public class GameService {
      */
     public GameDocument playMove(String id, String move) {
         GameDocument gameDocument = getGameById(id);
-        if(gameDocument == null) return null;
 
         // Convert to Game and play move
         Game game = convertToGame(gameDocument);
@@ -100,7 +101,6 @@ public class GameService {
      */
     public List<String> getMoves(String id) {
         GameDocument gameDocument = getGameById(id);
-        if(gameDocument == null) return null;
         return gameDocument.getMoves();
     }
 
@@ -113,7 +113,6 @@ public class GameService {
      */
     public GameDocument joinGame(String id, String playerName) {
         GameDocument gameDocument = getGameById(id);
-        if(gameDocument == null) return null;
 
         if(gameDocument.getState() != GameState.WAITING_FOR_PLAYER_TO_JOIN) {
             throw new IllegalStateException("Game is not waiting for player to join");
@@ -127,6 +126,17 @@ public class GameService {
         // Update GameDocument
         updateDocument(gameDocument, game);
         return gameRepository.save(gameDocument);
+    }
+
+    /**
+     * Returns an SseEmitter if a game with the provided gameId exists
+     *
+     * @param gameId String
+     * @return SseEmitter
+     */
+    public SseEmitter subscribeToEvents(String gameId) {
+        if(!exists(gameId)) throw new GameNotFoundException(gameId);
+        return eventService.createEmitter(gameId);
     }
 
     /**
