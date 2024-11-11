@@ -1,6 +1,5 @@
 package de.marcelgerber.springboard.api;
 
-import de.marcelgerber.springboard.api.dto.ErrorResponse;
 import de.marcelgerber.springboard.exceptions.GameNotFoundException;
 import de.marcelgerber.springboard.exceptions.IllegalGameStateException;
 import de.marcelgerber.springboard.exceptions.IllegalMoveException;

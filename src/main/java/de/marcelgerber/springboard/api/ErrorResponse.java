@@ -1,4 +1,4 @@
-package de.marcelgerber.springboard.api.dto;
+package de.marcelgerber.springboard.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
