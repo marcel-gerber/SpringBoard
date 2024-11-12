@@ -1,0 +1,61 @@
+package de.marcelgerber.springboard.util;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.MacAlgorithm;
+
+import javax.crypto.SecretKey;
+import java.util.Date;
+
+/**
+ * Class providing methods for JWT-authentication
+ */
+public class JwtUtil {
+
+    private static final MacAlgorithm ALGORITHM = Jwts.SIG.HS512;
+    private static final SecretKey SECRET_KEY = ALGORITHM.key().build();
+
+    // 1 hour in milliseconds
+    private static final long EXPIRATION_TIME = 3600000;
+
+    /**
+     * Generates a new token for the provided username
+     *
+     * @param username String
+     * @return JWT as String
+     */
+    public static String generateToken(String username) {
+        return Jwts.builder()
+                .subject(username)
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(SECRET_KEY, ALGORITHM)
+                .compact();
+    }
+
+    /**
+     * Returns 'true' when the provided token is valid for the provided username
+     *
+     * @param token JWT as String
+     * @param username String
+     * @return String
+     */
+    public static boolean isTokenValid(String token, String username) {
+        Claims claims = getClaims(token);
+        return claims.getSubject().equals(username) && !claims.getExpiration().before(new Date());
+    }
+
+    /**
+     * Returns all Claims of the provided token
+     *
+     * @param token JWT as String
+     * @return Claims
+     */
+    private static Claims getClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(SECRET_KEY)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+}
