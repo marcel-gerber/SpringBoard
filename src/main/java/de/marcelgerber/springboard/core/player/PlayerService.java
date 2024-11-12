@@ -1,9 +1,10 @@
 package de.marcelgerber.springboard.core.player;
 
-import de.marcelgerber.springboard.exceptions.PlayerNotFoundException;
-import de.marcelgerber.springboard.exceptions.UsernameAlreadyExistsException;
+import de.marcelgerber.springboard.exceptions.BadRequestException;
+import de.marcelgerber.springboard.exceptions.NotFoundException;
 import de.marcelgerber.springboard.persistence.PlayerRepository;
 import de.marcelgerber.springboard.persistence.documents.PlayerDocument;
+import de.marcelgerber.springboard.util.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,7 @@ public class PlayerService {
      */
     public PlayerDocument getPlayerById(String playerId) {
         Optional<PlayerDocument> playerDocument = playerRepository.findById(playerId);
-        return playerDocument.orElseThrow(() -> new PlayerNotFoundException(playerId));
+        return playerDocument.orElseThrow(() -> new NotFoundException("Player could not be found with ID: " + playerId));
     }
 
     /**
@@ -52,22 +53,41 @@ public class PlayerService {
      */
     public PlayerDocument getPlayerByUsername(String username) {
         Optional<PlayerDocument> playerDocument = playerRepository.findByUsername(username);
-        return playerDocument.orElseThrow(() -> new PlayerNotFoundException(username));
+        return playerDocument.orElseThrow(() -> new NotFoundException("Player could not be found with username: " + username));
     }
 
     /**
-     * Registers a new player
+     * Signs up a new player
      *
      * @param username String
      * @param password String
      * @return PlayerDocument
      */
-    public PlayerDocument registerPlayer(String username, String password) {
-        if(existsByUsername(username)) throw new UsernameAlreadyExistsException(username);
+    public PlayerDocument signupPlayer(String username, String password) {
+        if(existsByUsername(username)) throw new BadRequestException("Username is already taken");
 
         String encodedPassword = passwordEncoder.encode(password);
         PlayerDocument playerDocument = new PlayerDocument(username, encodedPassword);
         return playerRepository.save(playerDocument);
+    }
+
+    /**
+     * Returns a JWT if the provided username and password is correct
+     *
+     * @param username String
+     * @param password String
+     * @return JWT as String
+     */
+    public String loginPlayer(String username, String password) {
+        if(!existsByUsername(username)) throw new BadRequestException("Wrong username or password");
+
+        PlayerDocument playerDocument = getPlayerByUsername(username);
+
+        if(!passwordEncoder.matches(password, playerDocument.getPassword())) {
+            throw new BadRequestException("Wrong username or password");
+        }
+
+        return JwtUtil.generateToken(playerDocument.getUsername());
     }
 
     /**
