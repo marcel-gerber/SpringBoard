@@ -2,8 +2,8 @@ package de.marcelgerber.springboard.core.game;
 
 import de.marcelgerber.springboard.core.event.EventService;
 import de.marcelgerber.springboard.core.game.chesslogic.Color;
-import de.marcelgerber.springboard.exceptions.GameNotFoundException;
-import de.marcelgerber.springboard.exceptions.IllegalGameStateException;
+import de.marcelgerber.springboard.exceptions.BadRequestException;
+import de.marcelgerber.springboard.exceptions.NotFoundException;
 import de.marcelgerber.springboard.persistence.GameRepository;
 import de.marcelgerber.springboard.persistence.documents.GameDocument;
 import org.springframework.stereotype.Service;
@@ -57,7 +57,7 @@ public class GameService {
      */
     public GameDocument getGameById(String id) {
         Optional<GameDocument> gameDocument = gameRepository.findById(id);
-        return gameDocument.orElseThrow(() -> new GameNotFoundException(id));
+        return gameDocument.orElseThrow(() -> new NotFoundException(id));
     }
 
     /**
@@ -116,7 +116,7 @@ public class GameService {
         GameDocument gameDocument = getGameById(id);
 
         if(gameDocument.getState() != GameState.WAITING_FOR_PLAYER_TO_JOIN) {
-            throw new IllegalGameStateException("Game is not waiting for player to join");
+            throw new BadRequestException("Game is not waiting for player to join");
         }
 
         // Convert to Game and update it
@@ -136,7 +136,7 @@ public class GameService {
      * @return SseEmitter
      */
     public SseEmitter subscribeToEvents(String gameId) {
-        if(!exists(gameId)) throw new GameNotFoundException(gameId);
+        if(!exists(gameId)) throw new NotFoundException(gameId);
         return eventService.createEmitter(gameId);
     }
 

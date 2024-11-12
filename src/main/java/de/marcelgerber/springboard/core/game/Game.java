@@ -3,8 +3,7 @@ package de.marcelgerber.springboard.core.game;
 import de.marcelgerber.springboard.core.game.chesslogic.*;
 import de.marcelgerber.springboard.core.game.chesslogic.pieces.Piece;
 import de.marcelgerber.springboard.core.game.chesslogic.pieces.PieceType;
-import de.marcelgerber.springboard.exceptions.IllegalGameStateException;
-import de.marcelgerber.springboard.exceptions.IllegalMoveException;
+import de.marcelgerber.springboard.exceptions.BadRequestException;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -48,7 +47,7 @@ public class Game {
     private void convertAndPlayMoves(ArrayList<String> sMoves) {
         for(String sMove : sMoves) {
             Move move = convertMove(sMove);
-            if(move == null) throw new IllegalMoveException("Could not convert move: " + sMove);
+            if(move == null) throw new BadRequestException("Could not convert move: " + sMove);
 
             this.board.makeMove(move);
             this.moves.add(move);
@@ -63,7 +62,7 @@ public class Game {
      */
     private Move convertMove(String move) {
         if(move.length() < 4 || move.length() > 5) {
-            throw new IllegalMoveException("Unexpected length of move: " + move.length());
+            throw new BadRequestException("Unexpected length of move: " + move.length());
         }
 
         String sFrom = move.substring(0, 2);
@@ -73,7 +72,7 @@ public class Game {
         Square to = new Square(sTo);
 
         if(from.getValue() == SquareValue.NONE || to.getValue() == SquareValue.NONE) {
-            throw new IllegalMoveException("From or to Square out of range: " + move);
+            throw new BadRequestException("From or to Square out of range: " + move);
         }
 
         Piece piece = this.board.getPiece(from);
@@ -96,7 +95,7 @@ public class Game {
                 Piece promotionPiece = Piece.fromChar(move.charAt(4));
                 new Move(MoveType.PROMOTION, from, to, promotionPiece.getType());
             }
-            default -> throw new IllegalMoveException("Unexpected length of move: " + move.length());
+            default -> throw new BadRequestException("Unexpected length of move: " + move.length());
         }
         return null;
     }
@@ -107,11 +106,11 @@ public class Game {
      * @param sMove String-move
      */
     public void playMove(String sMove) {
-        if(this.gameState != GameState.ONGOING) throw new IllegalGameStateException("Game is not in ongoing state");
+        if(this.gameState != GameState.ONGOING) throw new BadRequestException("Game is not in ongoing state");
 
         Move move = convertMove(sMove);
-        if(move == null) throw new IllegalMoveException("Could not convert move: " + sMove);
-        if(!isMoveLegal(move)) throw new IllegalMoveException("Illegal move: " + move.toPureCoordinateNotation());
+        if(move == null) throw new BadRequestException("Could not convert move: " + sMove);
+        if(!isMoveLegal(move)) throw new BadRequestException("Illegal move: " + move.toPureCoordinateNotation());
 
         this.board.makeMove(move);
         this.moves.add(move);

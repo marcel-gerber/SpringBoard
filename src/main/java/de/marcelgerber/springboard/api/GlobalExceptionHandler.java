@@ -1,8 +1,7 @@
 package de.marcelgerber.springboard.api;
 
-import de.marcelgerber.springboard.exceptions.GameNotFoundException;
-import de.marcelgerber.springboard.exceptions.IllegalGameStateException;
-import de.marcelgerber.springboard.exceptions.IllegalMoveException;
+import de.marcelgerber.springboard.exceptions.BadRequestException;
+import de.marcelgerber.springboard.exceptions.NotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -42,37 +41,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Method for handling GameNotFoundException
+     * Method for handling NotFoundException
      *
-     * @param e GameNotFoundException
+     * @param e NotFoundException
      * @return ResponseEntity with ErrorResponse
      */
-    @ExceptionHandler(GameNotFoundException.class)
-    public ResponseEntity<ErrorResponse> gameNotFound(GameNotFoundException e) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     /**
-     * Method for handling IllegalMoveException
+     * Method for handling BadRequestException
      *
-     * @param e IllegalMoveException
+     * @param e BadRequestException
      * @return ResponseEntity with ErrorResponse
      */
-    @ExceptionHandler(IllegalMoveException.class)
-    public ResponseEntity<ErrorResponse> illegalMove(IllegalMoveException e) {
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * Method for handling IllegalGameStateException
-     *
-     * @param e IllegalGameStateException
-     * @return ResponseEntity with ErrorResponse
-     */
-    @ExceptionHandler(IllegalGameStateException.class)
-    public ResponseEntity<ErrorResponse> illegalGameState(IllegalGameStateException e) {
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException e) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
