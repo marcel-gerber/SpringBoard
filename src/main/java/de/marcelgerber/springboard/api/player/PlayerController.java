@@ -1,7 +1,9 @@
 package de.marcelgerber.springboard.api.player;
 
+import de.marcelgerber.springboard.api.player.dto.PlayerRequestDto;
 import de.marcelgerber.springboard.core.player.PlayerService;
 import de.marcelgerber.springboard.persistence.documents.PlayerDocument;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +23,7 @@ public class PlayerController {
      * GET /api/players <br>
      * Retrieves all players
      *
-     * @return ResponseEntity
+     * @return ResponseEntity with List of PlayerDocuments
      */
     @GetMapping
     public ResponseEntity<List<PlayerDocument>> getAllPlayers() {
@@ -32,7 +34,7 @@ public class PlayerController {
      * GET /api/players/{playerId} <br>
      * Retrieves all players
      *
-     * @return ResponseEntity
+     * @return ResponseEntity with PlayerDocument
      */
     @GetMapping("/{playerId}")
     public ResponseEntity<PlayerDocument> getPlayerById(@PathVariable String playerId) {
@@ -41,25 +43,28 @@ public class PlayerController {
     }
 
     /**
-     * POST /api/players/register <br>
+     * POST /api/players/signup <br>
      * Register a new player
      *
-     * @return ResponseEntity
+     * @return ResponseEntity with PlayerDocument
      */
-    @PostMapping
-    public ResponseEntity<?> registerPlayer() {
-        return ResponseEntity.ok("POST /api/players/register");
+    @PostMapping("/signup")
+    public ResponseEntity<PlayerDocument> signupPlayer(@Valid @RequestBody PlayerRequestDto playerRequestDto) {
+        PlayerDocument playerDocument = playerService.signupPlayer(playerRequestDto.getUsername(),
+                playerRequestDto.getPassword());
+        return ResponseEntity.ok(playerDocument);
     }
 
     /**
      * POST /api/players/login <br>
      * Register a new player
      *
-     * @return ResponseEntity
+     * @return ResponseEntity with JWT
      */
     @PostMapping("/login")
-    public ResponseEntity<?> loginPlayer() {
-        return ResponseEntity.ok("POST /api/players/login");
+    public ResponseEntity<String> loginPlayer(@Valid @RequestBody PlayerRequestDto playerRequestDto) {
+        String token = playerService.loginPlayer(playerRequestDto.getUsername(), playerRequestDto.getPassword());
+        return ResponseEntity.ok(token);
     }
 
 }
