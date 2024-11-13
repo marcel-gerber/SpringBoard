@@ -1,6 +1,6 @@
 package de.marcelgerber.springboard.chesslogic;
 
-import de.marcelgerber.springboard.core.game.chesslogic.Board;
+import de.marcelgerber.springboard.util.chesslogic.Board;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
