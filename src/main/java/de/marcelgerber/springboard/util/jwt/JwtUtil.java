@@ -45,6 +45,16 @@ public class JwtUtil {
     }
 
     /**
+     * Returns the subject of the provided token
+     *
+     * @param token JWT as String
+     * @return String
+     */
+    public static String getSubject(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    /**
      * Returns all Claims of the provided token
      *
      * @param token JWT as String
