@@ -1,11 +1,13 @@
 package de.marcelgerber.springboard.service;
 
+import de.marcelgerber.springboard.model.Player;
 import de.marcelgerber.springboard.util.chesslogic.Color;
 import de.marcelgerber.springboard.exception.BadRequestException;
 import de.marcelgerber.springboard.exception.NotFoundException;
 import de.marcelgerber.springboard.repository.GameRepository;
 import de.marcelgerber.springboard.model.Game;
 import de.marcelgerber.springboard.util.chesslogic.GameState;
+import de.marcelgerber.springboard.util.jwt.JwtUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -24,19 +26,6 @@ public class GameService {
     public GameService(GameRepository gameRepository, EventService eventService) {
         this.gameRepository = gameRepository;
         this.eventService = eventService;
-    }
-
-    /**
-     * Creates a new game, saves it in the database and returns it
-     *
-     * @return GameDocument
-     */
-    public Game createGame(String stringColor, String nickname) {
-        Color color = Color.fromString(stringColor);
-        if(color == Color.NONE) color = Color.WHITE;
-
-        Game game = new Game(color, nickname);
-        return gameRepository.save(game);
     }
 
     /**
@@ -81,13 +70,29 @@ public class GameService {
     }
 
     /**
+     * Creates a new game, saves it in the database and returns it
+     *
+     * @param player Player
+     * @param stringColor String
+     * @return GameDocument
+     */
+    public Game createGame(Player player, String stringColor) {
+        Color color = Color.fromString(stringColor);
+        if(color == Color.NONE) color = Color.WHITE;
+
+        Game game = new Game(color, player);
+        return gameRepository.save(game);
+    }
+
+    /**
      * Plays a move in the game and updates it
      *
+     * @param player Player
      * @param id String
      * @param move String
      * @return GameDocument
      */
-    public Game playMove(String id, String move) {
+    public Game playMove(Player player, String id, String move) {
         Game game = getGameById(id);
 
         if(game.getState() != GameState.ONGOING) throw new BadRequestException("Game is not in ongoing state");
@@ -103,18 +108,23 @@ public class GameService {
     /**
      * Joins an existing game
      *
+     * @param player Player
      * @param id String
-     * @param playerName String
      * @return GameDocument
      */
-    public Game joinGame(String id, String playerName) {
+    public Game joinGame(Player player, String id) {
         Game game = getGameById(id);
 
         if(game.getState() != GameState.WAITING_FOR_PLAYER_TO_JOIN) {
             throw new BadRequestException("Game is not waiting for player to join");
         }
 
-        game.setJoiningPlayerName(playerName);
+        Player playerWaiting = game.getWaitingPlayer();
+        if(player.getId().equals(playerWaiting.getId())) {
+            throw new BadRequestException("You already joined the game");
+        }
+
+        game.setJoiningPlayerName(player);
         game.setOngoing();
 
         return gameRepository.save(game);
