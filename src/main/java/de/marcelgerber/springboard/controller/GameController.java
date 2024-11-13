@@ -1,13 +1,14 @@
 package de.marcelgerber.springboard.controller;
 
 import de.marcelgerber.springboard.dto.request.CreateGameRequestDto;
-import de.marcelgerber.springboard.dto.request.JoinGameRequestDto;
 import de.marcelgerber.springboard.dto.request.PlayMoveRequestDto;
+import de.marcelgerber.springboard.model.Player;
 import de.marcelgerber.springboard.service.GameService;
 import de.marcelgerber.springboard.model.Game;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -54,8 +55,9 @@ public class GameController {
      * @return ResponseEntity with GameDocument
      */
     @PostMapping()
-    public ResponseEntity<Game> createGame(@Valid @RequestBody CreateGameRequestDto createGameRequestDto) {
-        Game game = gameService.createGame(createGameRequestDto.getColor(), createGameRequestDto.getPlayername());
+    public ResponseEntity<Game> createGame(@AuthenticationPrincipal Player player,
+                                           @RequestBody CreateGameRequestDto createGameRequestDto) {
+        Game game = gameService.createGame(player, createGameRequestDto.getColor());
         return ResponseEntity.ok(game);
     }
 
@@ -67,9 +69,9 @@ public class GameController {
      * @return ResponseEntity with GameDocument
      */
     @PostMapping("/{gameId}")
-    public ResponseEntity<Game> joinGame(@PathVariable String gameId,
-                                         @Valid @RequestBody JoinGameRequestDto joinGameRequestDto) {
-        Game game = gameService.joinGame(gameId, joinGameRequestDto.getPlayername());
+    public ResponseEntity<Game> joinGame(@AuthenticationPrincipal Player player,
+                                         @PathVariable String gameId) {
+        Game game = gameService.joinGame(player, gameId);
         return ResponseEntity.ok(game);
     }
 
@@ -81,9 +83,10 @@ public class GameController {
      * @return ResponseEntity with GameDocument
      */
     @PutMapping("/{gameId}/moves")
-    public ResponseEntity<Game> playMove(@PathVariable String gameId,
+    public ResponseEntity<Game> playMove(@AuthenticationPrincipal Player player,
+                                         @PathVariable String gameId,
                                          @Valid @RequestBody PlayMoveRequestDto playMoveRequestDto) {
-        Game game = gameService.playMove(gameId, playMoveRequestDto.getMove());
+        Game game = gameService.playMove(player, gameId, playMoveRequestDto.getMove());
         return ResponseEntity.ok(game);
     }
 
