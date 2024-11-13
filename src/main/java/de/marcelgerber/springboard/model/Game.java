@@ -7,6 +7,7 @@ import de.marcelgerber.springboard.util.chesslogic.pieces.Piece;
 import de.marcelgerber.springboard.util.chesslogic.pieces.PieceType;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -22,21 +23,26 @@ public class Game {
     private String id;
     private String fen;
     private GameState state;
-    private String playerWhite = null;
-    private String playerBlack = null;
+
+    @DBRef
+    private Player playerWhite = null;
+
+    @DBRef
+    private Player playerBlack = null;
+
     private ArrayList<String> moves;
 
     protected Game() { }
 
-    public Game(Color color, String nickname) {
+    public Game(Color color, Player player) {
         this.fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         this.state = GameState.WAITING_FOR_PLAYER_TO_JOIN;
         this.moves = new ArrayList<>();
 
         if(color == Color.WHITE) {
-            this.playerWhite = nickname;
+            this.playerWhite = player;
         } else {
-            this.playerBlack = nickname;
+            this.playerBlack = player;
         }
     }
 
@@ -123,15 +129,15 @@ public class Game {
     }
 
     /**
-     * Sets the players' name of the player who is joining the game
+     * Sets the player who is joining the game
      *
-     * @param playerName String
+     * @param player Player
      */
-    public void setJoiningPlayerName(String playerName) {
+    public void setJoiningPlayerName(Player player) {
         if(playerWhite == null) {
-            this.playerWhite = playerName;
+            this.playerWhite = player;
         } else {
-            this.playerBlack = playerName;
+            this.playerBlack = player;
         }
     }
 
@@ -140,6 +146,17 @@ public class Game {
      */
     public void setOngoing() {
         this.state = GameState.ONGOING;
+    }
+
+    /**
+     * Returns the player who is currently waiting for another player to join
+     *
+     * @return Player
+     */
+    public Player getWaitingPlayer() {
+        if(playerWhite == null && playerBlack != null) return playerBlack;
+        if(playerBlack == null && playerWhite != null) return playerWhite;
+        return null;
     }
 
 }
