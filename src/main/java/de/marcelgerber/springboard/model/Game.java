@@ -1,5 +1,6 @@
 package de.marcelgerber.springboard.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.marcelgerber.springboard.exception.BadRequestException;
 import de.marcelgerber.springboard.util.chesslogic.GameState;
 import de.marcelgerber.springboard.util.chesslogic.*;
@@ -7,6 +8,7 @@ import de.marcelgerber.springboard.util.chesslogic.pieces.Piece;
 import de.marcelgerber.springboard.util.chesslogic.pieces.PieceType;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -32,6 +34,10 @@ public class Game {
 
     private ArrayList<String> moves;
 
+    @Transient
+    @JsonIgnore
+    private Board board;
+
     protected Game() { }
 
     public Game(Color color, Player player) {
@@ -52,29 +58,24 @@ public class Game {
      * @param sMove String-move
      */
     public void playMove(String sMove) {
-        // Convert current FEN-String to Board
-        Board board = new Board();
-        board.setFen(this.fen);
-
         // Convert String-move to Move
-        Move move = convertMove(board, sMove);
+        Move move = convertMove(sMove);
         if(move == null) throw new BadRequestException("Could not convert move: " + sMove);
-        if(!isMoveLegal(board, move)) throw new BadRequestException("Illegal move: " + move.toPureCoordinateNotation());
+        if(!isMoveLegal(move)) throw new BadRequestException("Illegal move: " + move.toPureCoordinateNotation());
 
         // Make move on board and update Games' FEN-String and moves-list
-        board.makeMove(move);
-        this.fen = board.getFen();
+        this.board.makeMove(move);
+        this.fen = this.board.getFen();
         this.moves.add(move.toPureCoordinateNotation());
     }
 
     /**
      * Converts a String-move into a Move-Object
      *
-     * @param board Board
      * @param move String-move
      * @return Move
      */
-    private Move convertMove(Board board, String move) {
+    private Move convertMove(String move) {
         if(move.length() < 4 || move.length() > 5) {
             throw new BadRequestException("Unexpected length of move: " + move.length());
         }
@@ -89,10 +90,10 @@ public class Game {
             throw new BadRequestException("From or to Square out of range: " + move);
         }
 
-        Piece piece = board.getPiece(from);
+        Piece piece = this.board.getPiece(from);
 
         // En Passant move
-        if(piece.getType() == PieceType.PAWN && to.getIndex() == board.getEnPassant().getIndex()) {
+        if(piece.getType() == PieceType.PAWN && to.getIndex() == this.board.getEnPassant().getIndex()) {
             return new Move(MoveType.ENPASSANT, from, to);
         }
 
@@ -117,12 +118,11 @@ public class Game {
     /**
      * Returns 'true' when the provided move is a legal move
      *
-     * @param board Board
      * @param move Move
      * @return boolean
      */
-    private boolean isMoveLegal(Board board, Move move) {
-        for(Move legal : board.getLegalMoves()) {
+    private boolean isMoveLegal(Move move) {
+        for(Move legal : this.board.getLegalMoves()) {
             if(move.equals(legal)) return true;
         }
         return false;
@@ -153,10 +153,35 @@ public class Game {
      *
      * @return Player
      */
+    @JsonIgnore
     public Player getWaitingPlayer() {
         if(playerWhite == null && playerBlack != null) return playerBlack;
         if(playerBlack == null && playerWhite != null) return playerWhite;
         return null;
+    }
+
+    /**
+     * Returns the player who is next to move
+     *
+     * @return Player
+     */
+    @JsonIgnore
+    public Player getPlayerToMove() {
+        return switch(this.board.getSideToMove()) {
+            case WHITE -> playerWhite;
+            case BLACK -> playerBlack;
+            case NONE -> throw new IllegalStateException("Problem in getPlayerToMove(): SideToMove is NONE");
+        };
+    }
+
+    /**
+     * Initializes the internal Board
+     */
+    public void initializeBoard() {
+        if(this.board != null) return;
+
+        this.board = new Board();
+        this.board.setFen(this.fen);
     }
 
 }
