@@ -21,12 +21,12 @@ public class JwtUtil {
     /**
      * Generates a new token for the provided username
      *
-     * @param username String
+     * @param playerId String
      * @return JWT as String
      */
-    public static String generateToken(String username) {
+    public static String generateToken(String playerId) {
         return Jwts.builder()
-                .subject(username)
+                .subject(playerId)
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SECRET_KEY, ALGORITHM)
                 .compact();
@@ -36,12 +36,12 @@ public class JwtUtil {
      * Returns 'true' when the provided token is valid for the provided username
      *
      * @param token JWT as String
-     * @param username String
+     * @param playerId String
      * @return String
      */
-    public static boolean isTokenValid(String token, String username) {
+    public static boolean isTokenValid(String token, String playerId) {
         Claims claims = getClaims(token);
-        return claims.getSubject().equals(username) && !claims.getExpiration().before(new Date());
+        return claims.getSubject().equals(playerId) && !claims.getExpiration().before(new Date());
     }
 
     /**
