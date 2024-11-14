@@ -3,6 +3,7 @@ package de.marcelgerber.springboard.controller;
 import de.marcelgerber.springboard.dto.response.ErrorResponseDto;
 import de.marcelgerber.springboard.exception.BadRequestException;
 import de.marcelgerber.springboard.exception.NotFoundException;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -63,6 +64,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleBadRequest(BadRequestException e) {
         ErrorResponseDto errorResponse = new ErrorResponseDto(HttpStatus.BAD_REQUEST.value(), e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Method for handling SignatureException
+     *
+     * @return ResponseEntity with ErrorResponse
+     */
+    @ExceptionHandler(SignatureException.class)
+    public ResponseEntity<ErrorResponseDto> handleSignature(SignatureException e) {
+        String error = "Invalid signature";
+        ErrorResponseDto errorResponse = new ErrorResponseDto(HttpStatus.UNAUTHORIZED.value(), error);
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
 }
