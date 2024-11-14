@@ -1,9 +1,5 @@
 package de.marcelgerber.springboard.config;
 
-import de.marcelgerber.springboard.exception.NotFoundException;
-import de.marcelgerber.springboard.model.Player;
-import de.marcelgerber.springboard.repository.PlayerRepository;
-import de.marcelgerber.springboard.service.PlayerService;
 import de.marcelgerber.springboard.util.jwt.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,19 +10,18 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    // Using playerRepository and not playerService here, because it would
-    // form a dependency cycle (because of PasswordEncoder in playerService)
-    private final PlayerRepository playerRepository;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
-    public JwtAuthenticationFilter(PlayerRepository playerRepository) {
-        this.playerRepository = playerRepository;
+    public JwtAuthenticationFilter(final HandlerExceptionResolver handlerExceptionResolver) {
+        this.handlerExceptionResolver = handlerExceptionResolver;
     }
 
     @Override
@@ -41,19 +36,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = header.substring(7);
-        String username = JwtUtil.getSubject(token);
+        try {
+            String token = header.substring(7);
+            String playerId = JwtUtil.getSubject(token);
 
-        if(username != null) {
-            if(JwtUtil.isTokenValid(token, username)) {
-                Player player = playerRepository.findByUsername(username)
-                        .orElseThrow(() -> new NotFoundException("username not found"));
-
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(player, null, null);
-                SecurityContextHolder.getContext().setAuthentication(auth);
+            if(playerId != null) {
+                if(JwtUtil.isTokenValid(token, playerId)) {
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(playerId, null, List.of());
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
+            filterChain.doFilter(request, response);
+        } catch (Exception exception) {
+            handlerExceptionResolver.resolveException(request, response, null, exception);
         }
-        filterChain.doFilter(request, response);
     }
 
 }
