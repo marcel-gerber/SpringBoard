@@ -55,9 +55,9 @@ public class GameController {
      * @return ResponseEntity with GameDocument
      */
     @PostMapping()
-    public ResponseEntity<Game> createGame(@AuthenticationPrincipal Player player,
+    public ResponseEntity<Game> createGame(@AuthenticationPrincipal String playerId,
                                            @RequestBody CreateGameRequestDto createGameRequestDto) {
-        Game game = gameService.createGame(player, createGameRequestDto.getColor());
+        Game game = gameService.createGame(playerId, createGameRequestDto.getColor());
         return ResponseEntity.ok(game);
     }
 
@@ -69,9 +69,9 @@ public class GameController {
      * @return ResponseEntity with GameDocument
      */
     @PostMapping("/{gameId}")
-    public ResponseEntity<Game> joinGame(@AuthenticationPrincipal Player player,
+    public ResponseEntity<Game> joinGame(@AuthenticationPrincipal String playerId,
                                          @PathVariable String gameId) {
-        Game game = gameService.joinGame(player, gameId);
+        Game game = gameService.joinGame(playerId, gameId);
         return ResponseEntity.ok(game);
     }
 
@@ -83,10 +83,10 @@ public class GameController {
      * @return ResponseEntity with GameDocument
      */
     @PutMapping("/{gameId}/moves")
-    public ResponseEntity<Game> playMove(@AuthenticationPrincipal Player player,
+    public ResponseEntity<Game> playMove(@AuthenticationPrincipal String playerId,
                                          @PathVariable String gameId,
                                          @Valid @RequestBody PlayMoveRequestDto playMoveRequestDto) {
-        Game game = gameService.playMove(player, gameId, playMoveRequestDto.getMove());
+        Game game = gameService.playMove(playerId, gameId, playMoveRequestDto.getMove());
         return ResponseEntity.ok(game);
     }
 
