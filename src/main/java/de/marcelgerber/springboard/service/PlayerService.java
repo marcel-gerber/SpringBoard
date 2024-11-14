@@ -87,7 +87,7 @@ public class PlayerService {
             throw new BadRequestException("Wrong username or password");
         }
 
-        return JwtUtil.generateToken(player.getUsername());
+        return JwtUtil.generateToken(player.getId());
     }
 
     /**
