@@ -2,7 +2,6 @@ package de.marcelgerber.springboard.controller;
 
 import de.marcelgerber.springboard.dto.request.CreateGameRequestDto;
 import de.marcelgerber.springboard.dto.request.PlayMoveRequestDto;
-import de.marcelgerber.springboard.model.Player;
 import de.marcelgerber.springboard.service.GameService;
 import de.marcelgerber.springboard.model.Game;
 import jakarta.validation.Valid;
