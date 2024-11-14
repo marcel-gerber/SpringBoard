@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if(playerId != null) {
                 if(JwtUtil.isTokenValid(token, playerId)) {
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(playerId, null, List.of());
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(playerId, null, null);
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             }
