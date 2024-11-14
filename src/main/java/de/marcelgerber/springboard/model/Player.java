@@ -1,5 +1,6 @@
 package de.marcelgerber.springboard.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,6 +15,8 @@ public class Player {
     @Id
     private String id;
     private String username;
+
+    @JsonIgnore
     private String password;
 
     public Player(String username, String password) {
