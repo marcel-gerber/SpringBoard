@@ -1,6 +1,7 @@
 package de.marcelgerber.springboard.controller;
 
 import de.marcelgerber.springboard.dto.request.PlayerRequestDto;
+import de.marcelgerber.springboard.dto.response.LoginResponseDto;
 import de.marcelgerber.springboard.service.PlayerService;
 import de.marcelgerber.springboard.model.Player;
 import jakarta.validation.Valid;
@@ -59,12 +60,12 @@ public class PlayerController {
      * POST /api/players/login <br>
      * Register a new player
      *
-     * @return ResponseEntity with JWT
+     * @return ResponseEntity with LoginResponseDto containing a JWT
      */
     @PostMapping("/login")
-    public ResponseEntity<String> loginPlayer(@Valid @RequestBody PlayerRequestDto playerRequestDto) {
+    public ResponseEntity<LoginResponseDto> loginPlayer(@Valid @RequestBody PlayerRequestDto playerRequestDto) {
         String token = playerService.loginPlayer(playerRequestDto.getUsername(), playerRequestDto.getPassword());
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(new LoginResponseDto(token));
     }
 
 }
