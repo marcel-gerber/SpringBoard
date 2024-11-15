@@ -43,7 +43,7 @@ public class GameService {
      * Finds a game by id and returns it if exists
      *
      * @param id String
-     * @return GameDocument if present
+     * @return Game if present
      */
     public Game getGameById(String id) {
         Optional<Game> game = gameRepository.findById(id);
@@ -53,7 +53,7 @@ public class GameService {
     /**
      * Returns all games in the database
      *
-     * @return List of GameDocuments
+     * @return List of Games
      */
     public List<Game> getAllGames() {
         return gameRepository.findAll();
@@ -75,7 +75,7 @@ public class GameService {
      *
      * @param playerId String
      * @param stringColor String
-     * @return GameDocument
+     * @return Game
      */
     public Game createGame(String playerId, String stringColor) {
         Player player = playerService.getPlayerById(playerId);
@@ -93,7 +93,7 @@ public class GameService {
      * @param playerId String
      * @param gameId String
      * @param move String
-     * @return GameDocument
+     * @return Game
      */
     public Game playMove(String playerId, String gameId, String move) {
         Game game = getGameById(gameId);
@@ -121,7 +121,7 @@ public class GameService {
      *
      * @param playerId String
      * @param gameId String
-     * @return GameDocument
+     * @return Game
      */
     public Game joinGame(String playerId, String gameId) {
         Game game = getGameById(gameId);
@@ -136,6 +136,9 @@ public class GameService {
         if(playerJoining.getId().equals(playerWaiting.getId())) {
             throw new BadRequestException("You already joined the game");
         }
+
+        // Send update to all subscribers that a player has joined the game
+        eventService.sendPlayerJoinedUpdate(gameId, playerJoining);
 
         game.setJoiningPlayerName(playerJoining);
         game.setOngoing();

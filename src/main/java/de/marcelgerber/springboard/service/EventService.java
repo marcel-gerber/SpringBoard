@@ -1,5 +1,6 @@
 package de.marcelgerber.springboard.service;
 
+import de.marcelgerber.springboard.model.Player;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -51,7 +52,7 @@ public class EventService {
     }
 
     /**
-     * Sends an update to all subscribers of the game with 'gameId'
+     * Sends a move update to all subscribers of the game with 'gameId'
      *
      * @param gameId String
      * @param move String
@@ -63,6 +64,27 @@ public class EventService {
         emittersList.forEach(emitter -> {
             try {
                 emitter.send(SseEmitter.event().name("move").data(move));
+            } catch(IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    /**
+     * Sends a player-joined update to all subscribers of the game with 'gameId'
+     *
+     * @param gameId String
+     * @param player Player
+     */
+    public void sendPlayerJoinedUpdate(String gameId, Player player) {
+        ArrayList<SseEmitter> emittersList = emitters.get(gameId);
+        if(emittersList == null || emittersList.isEmpty()) return;
+
+        String data = player.getId() + ":" + player.getUsername();
+
+        emittersList.forEach(emitter -> {
+            try {
+                emitter.send(SseEmitter.event().name("join").data(data));
             } catch(IOException e) {
                 throw new RuntimeException(e);
             }
