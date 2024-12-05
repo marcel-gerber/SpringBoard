@@ -3,6 +3,7 @@ package de.marcelgerber.springboard.config;
 import de.marcelgerber.springboard.util.jwt.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -13,6 +14,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -28,15 +31,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        final String header = request.getHeader("Authorization");
+        final String token = Arrays.stream(Optional.ofNullable(request.getCookies())
+                        .orElse(new Cookie[0]))
+                .filter(cookie -> cookie.getName().equals("accessToken"))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
 
-        if(header == null || !header.startsWith("Bearer ")) {
+        if(token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            String token = header.substring(7);
             String playerId = JwtUtil.getSubject(token);
 
             if(playerId != null) {
