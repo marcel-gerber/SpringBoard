@@ -38,8 +38,8 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(HttpMethod.POST, "/api/games", "/api/games/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/games", "/api/games/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/games/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/games/**").authenticated()
                 .anyRequest().permitAll())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
