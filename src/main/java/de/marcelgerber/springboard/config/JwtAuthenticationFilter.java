@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+    ) {
         final String token = Arrays.stream(Optional.ofNullable(request.getCookies())
                         .orElse(new Cookie[0]))
                 .filter(cookie -> cookie.getName().equals("accessToken"))
@@ -39,23 +39,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .orElse(null);
 
         if(token == null) {
-            filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         try {
             String playerId = JwtUtil.getSubject(token);
 
-            if(playerId != null) {
-                if(JwtUtil.isTokenValid(token, playerId)) {
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(playerId, null, null);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
+            if(playerId == null || !JwtUtil.isTokenValid(token, playerId)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
             }
+
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(playerId, null, null);
+            SecurityContextHolder.getContext().setAuthentication(auth);
             filterChain.doFilter(request, response);
         } catch (Exception exception) {
             handlerExceptionResolver.resolveException(request, response, null, exception);
         }
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+
+        return switch (request.getMethod()) {
+            case "GET" -> !path.equals("/api/players/session");
+            case "POST" -> !(path.startsWith("/api/games") || path.equals("/api/players/logout"));
+            case "PUT" -> !path.startsWith("/api/games");
+            default -> true;
+        };
     }
 
 }
