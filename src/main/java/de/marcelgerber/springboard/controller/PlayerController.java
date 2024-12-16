@@ -2,6 +2,8 @@ package de.marcelgerber.springboard.controller;
 
 import de.marcelgerber.springboard.dto.request.PlayerRequestDto;
 import de.marcelgerber.springboard.dto.response.LoginResponseDto;
+import de.marcelgerber.springboard.dto.response.LogoutResponseDto;
+import de.marcelgerber.springboard.dto.response.SessionResponseDto;
 import de.marcelgerber.springboard.service.PlayerService;
 import de.marcelgerber.springboard.model.Player;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,7 +64,7 @@ public class PlayerController {
 
     /**
      * POST /api/players/login <br>
-     * Register a new player
+     * Login with credentials
      *
      * @return ResponseEntity with LoginResponseDto and a header containing a httpOnly-cookie with a JWT
      */
@@ -79,6 +82,29 @@ public class PlayerController {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return ResponseEntity.ok(new LoginResponseDto("Login successful"));
+    }
+
+    /**
+     * GET /api/players/session <br>
+     * Validate a session
+     *
+     * @return ResponseEntity with SessionResponseDto
+     */
+    @GetMapping("/session")
+    public ResponseEntity<SessionResponseDto> validateSession() {
+        return ResponseEntity.ok(new SessionResponseDto(true));
+    }
+
+    /**
+     * POST /api/players/logout <br>
+     * Logout and make JWT invalid
+     *
+     * @return ResponseEntity with LogoutSessionDto
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<LogoutResponseDto> logout() {
+        // TODO: Implement Black List
+        return ResponseEntity.ok(new LogoutResponseDto("Logout successful"));
     }
 
 }
