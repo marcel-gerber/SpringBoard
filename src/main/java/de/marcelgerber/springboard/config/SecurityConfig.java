@@ -40,6 +40,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.POST, "/api/games/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/games/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/players/session").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/players/logout").authenticated()
                 .anyRequest().permitAll())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
