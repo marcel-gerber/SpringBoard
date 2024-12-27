@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/players")
@@ -70,9 +71,10 @@ public class PlayerController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> loginPlayer(@Valid @RequestBody PlayerRequestDto playerRequestDto,
                                                         HttpServletResponse response) {
-        String token = playerService.loginPlayer(playerRequestDto.getUsername(), playerRequestDto.getPassword());
+        Map<String, Player> map = playerService.loginPlayer(playerRequestDto.getUsername(), playerRequestDto.getPassword());
+        Map.Entry<String, Player> entry = map.entrySet().iterator().next();
 
-        ResponseCookie cookie = ResponseCookie.from("accessToken", token)
+        ResponseCookie cookie = ResponseCookie.from("accessToken", entry.getKey())
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
@@ -80,7 +82,7 @@ public class PlayerController {
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok(new LoginResponseDto("Login successful"));
+        return ResponseEntity.ok(new LoginResponseDto("Login successful", entry.getValue().getId()));
     }
 
     /**
