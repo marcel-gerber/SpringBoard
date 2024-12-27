@@ -8,8 +8,7 @@ import de.marcelgerber.springboard.util.jwt.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Handles whole business logic for players
@@ -72,13 +71,15 @@ public class PlayerService {
     }
 
     /**
-     * Returns a JWT if the provided username and password is correct
+     * Returns a SingletonMap if the provided username and password is correct with the following: <br />
+     * Key: JWT token <br />
+     * Value: Player object
      *
      * @param username String
      * @param password String
      * @return JWT as String
      */
-    public String loginPlayer(String username, String password) {
+    public Map<String, Player> loginPlayer(String username, String password) {
         if(!existsByUsername(username)) throw new BadRequestException("Wrong username or password");
 
         Player player = getPlayerByUsername(username);
@@ -87,7 +88,8 @@ public class PlayerService {
             throw new BadRequestException("Wrong username or password");
         }
 
-        return JwtUtil.generateToken(player.getId());
+        String token = JwtUtil.generateToken(player.getId());
+        return Collections.singletonMap(token, player);
     }
 
     /**
