@@ -8,5 +8,6 @@ import lombok.Data;
 public class SessionResponseDto {
 
     private boolean valid;
+    private String playerId;
 
 }
