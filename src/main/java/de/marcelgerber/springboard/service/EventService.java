@@ -17,6 +17,19 @@ public class EventService {
     private final HashMap<String, ArrayList<SseEmitter>> emitters = new HashMap<>();
 
     /**
+     * Sends a message to the provided SseEmitter
+     *
+     * @param emitter {@link SseEmitter}
+     */
+    private void sendInitialMessage(SseEmitter emitter) {
+        try {
+            emitter.send(SseEmitter.event().name("connection").data("ok"));
+        } catch(IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * Removes an emitter from the HashMap
      *
      * @param gameId String
@@ -48,6 +61,8 @@ public class EventService {
         emitter.onCompletion(() -> removeEmitter(gameId, emitter));
         emitter.onTimeout(() -> removeEmitter(gameId, emitter));
 
+        sendInitialMessage(emitter);
+
         return emitter;
     }
 
@@ -61,13 +76,15 @@ public class EventService {
         ArrayList<SseEmitter> emittersList = emitters.get(gameId);
         if(emittersList == null || emittersList.isEmpty()) return;
 
-        emittersList.forEach(emitter -> {
-            try {
-                emitter.send(SseEmitter.event().name("move").data(move));
-            } catch(IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        synchronized(emittersList) {
+            emittersList.forEach(emitter -> {
+                try {
+                    emitter.send(SseEmitter.event().name("move").data(move));
+                } catch(IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
     }
 
     /**
@@ -82,13 +99,15 @@ public class EventService {
 
         String data = player.getId() + ":" + player.getUsername();
 
-        emittersList.forEach(emitter -> {
-            try {
-                emitter.send(SseEmitter.event().name("join").data(data));
-            } catch(IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        synchronized(emittersList) {
+            emittersList.forEach(emitter -> {
+                try {
+                    emitter.send(SseEmitter.event().name("join").data(data));
+                } catch(IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
     }
 
 }
