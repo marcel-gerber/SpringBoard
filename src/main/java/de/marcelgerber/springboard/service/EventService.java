@@ -6,7 +6,10 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class for handling Server-Sent-Events
@@ -14,7 +17,7 @@ import java.util.HashMap;
 @Service
 public class EventService {
 
-    private final HashMap<String, ArrayList<SseEmitter>> emitters = new HashMap<>();
+    private final ConcurrentHashMap<String, List<SseEmitter>> subscribers = new ConcurrentHashMap<>();
 
     /**
      * Sends a message to the provided SseEmitter
@@ -36,10 +39,10 @@ public class EventService {
      * @param emitter SseEmitter
      */
     private void removeEmitter(String gameId, SseEmitter emitter) {
-        emitters.get(gameId).remove(emitter);
+        subscribers.get(gameId).remove(emitter);
 
-        if(emitters.get(gameId).isEmpty()) {
-            emitters.remove(gameId);
+        if(subscribers.get(gameId).isEmpty()) {
+            subscribers.remove(gameId);
         }
     }
 
@@ -53,13 +56,12 @@ public class EventService {
         // Set timeout to 300.000 ms = 5 minutes
         SseEmitter emitter = new SseEmitter(300000L);
 
-        if(!emitters.containsKey(gameId)) {
-            emitters.put(gameId, new ArrayList<>());
-        }
-        emitters.get(gameId).add(emitter);
+        subscribers.computeIfAbsent(gameId, k -> Collections.synchronizedList(new ArrayList<>()))
+                .add(emitter);
 
         emitter.onCompletion(() -> removeEmitter(gameId, emitter));
         emitter.onTimeout(() -> removeEmitter(gameId, emitter));
+        emitter.onError((error) -> removeEmitter(gameId, emitter));
 
         sendInitialMessage(emitter);
 
@@ -73,17 +75,22 @@ public class EventService {
      * @param move String
      */
     public void sendMoveUpdate(String gameId, String move) {
-        ArrayList<SseEmitter> emittersList = emitters.get(gameId);
-        if(emittersList == null || emittersList.isEmpty()) return;
+        List<SseEmitter> emittersList = subscribers.getOrDefault(gameId, Collections.emptyList());
 
         synchronized(emittersList) {
-            emittersList.forEach(emitter -> {
+            Iterator<SseEmitter> iterator = emittersList.iterator();
+
+            while(iterator.hasNext()) {
+                SseEmitter emitter = iterator.next();
                 try {
                     emitter.send(SseEmitter.event().name("move").data(move));
                 } catch(IOException e) {
-                    throw new RuntimeException(e);
+                    // We don't know when the connection is closed on the client's side. When we want to send a
+                    // message to the client and get an error, we know that the connection has been closed client side
+                    emitter.complete();
+                    iterator.remove();
                 }
-            });
+            }
         }
     }
 
@@ -94,19 +101,22 @@ public class EventService {
      * @param player Player
      */
     public void sendPlayerJoinedUpdate(String gameId, Player player) {
-        ArrayList<SseEmitter> emittersList = emitters.get(gameId);
-        if(emittersList == null || emittersList.isEmpty()) return;
+        List<SseEmitter> emittersList = subscribers.getOrDefault(gameId, Collections.emptyList());
 
         String data = player.getId() + ":" + player.getUsername();
 
         synchronized(emittersList) {
-            emittersList.forEach(emitter -> {
+            Iterator<SseEmitter> iterator = emittersList.iterator();
+
+            while(iterator.hasNext()) {
+                SseEmitter emitter = iterator.next();
                 try {
                     emitter.send(SseEmitter.event().name("join").data(data));
                 } catch(IOException e) {
-                    throw new RuntimeException(e);
+                    emitter.complete();
+                    iterator.remove();
                 }
-            });
+            }
         }
     }
 
