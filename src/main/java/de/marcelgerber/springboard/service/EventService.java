@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Class for handling Server-Sent-Events
@@ -20,28 +20,16 @@ public class EventService {
     private final ConcurrentHashMap<String, List<SseEmitter>> subscribers = new ConcurrentHashMap<>();
 
     /**
-     * Sends a message to the provided SseEmitter
-     *
-     * @param emitter {@link SseEmitter}
-     */
-    private void sendInitialMessage(SseEmitter emitter) {
-        try {
-            emitter.send(SseEmitter.event().name("connection").data("ok"));
-        } catch(IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
      * Removes an emitter from the HashMap
      *
      * @param gameId String
      * @param emitter SseEmitter
      */
     private void removeEmitter(String gameId, SseEmitter emitter) {
-        subscribers.get(gameId).remove(emitter);
+        List<SseEmitter> emitterList = subscribers.get(gameId);
+        emitterList.remove(emitter);
 
-        if(subscribers.get(gameId).isEmpty()) {
+        if(emitterList.isEmpty()) {
             subscribers.remove(gameId);
         }
     }
@@ -56,14 +44,11 @@ public class EventService {
         // Set timeout to 300.000 ms = 5 minutes
         SseEmitter emitter = new SseEmitter(300000L);
 
-        subscribers.computeIfAbsent(gameId, k -> Collections.synchronizedList(new ArrayList<>()))
-                .add(emitter);
-
         emitter.onCompletion(() -> removeEmitter(gameId, emitter));
         emitter.onTimeout(() -> removeEmitter(gameId, emitter));
         emitter.onError((error) -> removeEmitter(gameId, emitter));
 
-        sendInitialMessage(emitter);
+        subscribers.computeIfAbsent(gameId, key -> new CopyOnWriteArrayList<>()).add(emitter);
 
         return emitter;
     }
