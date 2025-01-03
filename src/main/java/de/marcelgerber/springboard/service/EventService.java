@@ -5,9 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -61,22 +59,18 @@ public class EventService {
      */
     public void sendMoveUpdate(String gameId, String move) {
         List<SseEmitter> emittersList = subscribers.getOrDefault(gameId, Collections.emptyList());
+        List<SseEmitter> deadEmitters = new ArrayList<>();
 
-        synchronized(emittersList) {
-            Iterator<SseEmitter> iterator = emittersList.iterator();
-
-            while(iterator.hasNext()) {
-                SseEmitter emitter = iterator.next();
-                try {
-                    emitter.send(SseEmitter.event().name("move").data(move));
-                } catch(IOException e) {
-                    // We don't know when the connection is closed on the client's side. When we want to send a
-                    // message to the client and get an error, we know that the connection has been closed client side
-                    emitter.complete();
-                    iterator.remove();
-                }
+        emittersList.forEach(emitter -> {
+            try {
+                emitter.send(SseEmitter.event().name("move").data(move));
+            } catch(IOException e) {
+                // We don't know when the connection is closed on the client's side. When we want to send a
+                // message to the client and get an error, we know that the connection has been closed client side
+                deadEmitters.add(emitter);
             }
-        }
+        });
+        emittersList.removeAll(deadEmitters);
     }
 
     /**
@@ -87,22 +81,18 @@ public class EventService {
      */
     public void sendPlayerJoinedUpdate(String gameId, Player player) {
         List<SseEmitter> emittersList = subscribers.getOrDefault(gameId, Collections.emptyList());
+        List<SseEmitter> deadEmitters = new ArrayList<>();
 
         String data = player.getId() + ":" + player.getUsername();
 
-        synchronized(emittersList) {
-            Iterator<SseEmitter> iterator = emittersList.iterator();
-
-            while(iterator.hasNext()) {
-                SseEmitter emitter = iterator.next();
-                try {
-                    emitter.send(SseEmitter.event().name("join").data(data));
-                } catch(IOException e) {
-                    emitter.complete();
-                    iterator.remove();
-                }
+        emittersList.forEach(emitter -> {
+            try {
+                emitter.send(SseEmitter.event().name("join").data(data));
+            } catch(IOException e) {
+                deadEmitters.add(emitter);
             }
-        }
+        });
+        emittersList.removeAll(deadEmitters);
     }
 
 }
