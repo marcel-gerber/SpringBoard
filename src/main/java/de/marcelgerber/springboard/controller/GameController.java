@@ -61,13 +61,13 @@ public class GameController {
     }
 
     /**
-     * POST /api/games/{gameId} <br>
+     * PUT /api/games/{gameId} <br>
      * Joins an existing game
      *
      * @param gameId String
      * @return ResponseEntity with GameDocument
      */
-    @PostMapping("/{gameId}")
+    @PutMapping("/{gameId}")
     public ResponseEntity<Game> joinGame(@AuthenticationPrincipal String playerId,
                                          @PathVariable String gameId) {
         Game game = gameService.joinGame(playerId, gameId);
