@@ -138,7 +138,7 @@ public class GameService {
         }
 
         // Send update to all subscribers that a player has joined the game
-        eventService.sendPlayerJoinedUpdate(gameId, playerJoining);
+        eventService.sendPlayerJoinedUpdate(gameId, playerJoining.getUsername());
 
         game.setJoiningPlayerName(playerJoining);
         game.setOngoing();
