@@ -1,5 +1,6 @@
 package de.marcelgerber.springboard.config;
 
+import de.marcelgerber.springboard.service.BlackListService;
 import de.marcelgerber.springboard.util.jwt.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -19,9 +20,12 @@ import java.util.Optional;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final HandlerExceptionResolver handlerExceptionResolver;
+    private final BlackListService blackListService;
 
-    public JwtAuthenticationFilter(final HandlerExceptionResolver handlerExceptionResolver) {
+    public JwtAuthenticationFilter(final HandlerExceptionResolver handlerExceptionResolver,
+                                   final BlackListService blackListService) {
         this.handlerExceptionResolver = handlerExceptionResolver;
+        this.blackListService = blackListService;
     }
 
     @Override
@@ -36,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .findFirst()
                 .orElse(null);
 
-        if(token == null) {
+        if(token == null || blackListService.contains(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
