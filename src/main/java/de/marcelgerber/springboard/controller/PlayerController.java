@@ -4,7 +4,6 @@ import de.marcelgerber.springboard.dto.request.PlayerRequestDto;
 import de.marcelgerber.springboard.dto.response.LoginResponseDto;
 import de.marcelgerber.springboard.dto.response.LogoutResponseDto;
 import de.marcelgerber.springboard.dto.response.SessionResponseDto;
-import de.marcelgerber.springboard.exception.BadRequestException;
 import de.marcelgerber.springboard.exception.NotFoundException;
 import de.marcelgerber.springboard.service.PlayerService;
 import de.marcelgerber.springboard.model.Player;
