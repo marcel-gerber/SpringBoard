@@ -18,10 +18,14 @@ public class PlayerService {
 
     private final PlayerRepository playerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BlackListService blackListService;
 
-    public PlayerService(PlayerRepository playerRepository, PasswordEncoder passwordEncoder) {
+    public PlayerService(PlayerRepository playerRepository,
+                         PasswordEncoder passwordEncoder,
+                         BlackListService blackListService) {
         this.playerRepository = playerRepository;
         this.passwordEncoder = passwordEncoder;
+        this.blackListService = blackListService;
     }
 
     /**
@@ -90,6 +94,15 @@ public class PlayerService {
 
         String token = JwtUtil.generateToken(player.getId());
         return Collections.singletonMap(token, player);
+    }
+
+    /**
+     * Adds the provided JWT to the black list
+     *
+     * @param token JWT as String
+     */
+    public void logoutPlayer(String token) {
+        blackListService.addToken(token);
     }
 
     /**
