@@ -4,8 +4,12 @@ import de.marcelgerber.springboard.dto.request.PlayerRequestDto;
 import de.marcelgerber.springboard.dto.response.LoginResponseDto;
 import de.marcelgerber.springboard.dto.response.LogoutResponseDto;
 import de.marcelgerber.springboard.dto.response.SessionResponseDto;
+import de.marcelgerber.springboard.exception.BadRequestException;
+import de.marcelgerber.springboard.exception.NotFoundException;
 import de.marcelgerber.springboard.service.PlayerService;
 import de.marcelgerber.springboard.model.Player;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -104,8 +109,11 @@ public class PlayerController {
      * @return ResponseEntity with LogoutSessionDto
      */
     @PostMapping("/logout")
-    public ResponseEntity<LogoutResponseDto> logout() {
-        // TODO: Implement Black List
+    public ResponseEntity<LogoutResponseDto> logout(HttpServletRequest request) {
+        final String token = Arrays.stream(request.getCookies())
+                .filter(cookie -> cookie.getName().equals("accessToken"))
+                .map(Cookie::getValue).findFirst().orElseThrow(() -> new NotFoundException("Cookie not found"));
+        playerService.logoutPlayer(token);
         return ResponseEntity.ok(new LogoutResponseDto("Logout successful"));
     }
 
