@@ -47,7 +47,7 @@ public class GameService {
      */
     public Game getGameById(String id) {
         Optional<Game> game = gameRepository.findById(id);
-        return game.orElseThrow(() -> new NotFoundException(id));
+        return game.orElseThrow(() -> new NotFoundException("Game not found with ID " + id));
     }
 
     /**
@@ -153,7 +153,7 @@ public class GameService {
      * @return SseEmitter
      */
     public SseEmitter subscribeToEvents(String gameId) {
-        if(!exists(gameId)) throw new NotFoundException(gameId);
+        if(!exists(gameId)) throw new NotFoundException("Game not found with ID " + gameId);
         return eventService.createEmitter(gameId);
     }
 
