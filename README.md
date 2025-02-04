@@ -46,4 +46,80 @@ mvn test
 
 ### Games
 
+### ``GET /api/games``
+
+Retrieves all games
+
+### ``GET /api/games/{gameId}``
+
+Retrieves a specific game
+
+### ``POST /api/games``
+
+Creates a new game
+
+#### Request
+
+#### Header
+
+Expects httpOnly cookie in header with JWT
+
+| name        | value          |
+|-------------|----------------|
+| accessToken | JSON Web Token |
+
+#### Body
+
+| key   | type   | valid values | required |
+|-------|--------|--------------|----------|
+| color | String | white, black | no       |
+
+If the body is emtpy or the value is neither "white" nor "black", the default
+color will be white.
+
+### ``PUT /api/games/{gameId}``
+
+Joins an existing game
+
+#### Request
+
+#### Header
+
+Expects httpOnly cookie in header with JWT
+
+| name        | value          |
+|-------------|----------------|
+| accessToken | JSON Web Token |
+
+### ``PUT /api/games/{gameId}/moves``
+
+Play a move in a game
+
+#### Request
+
+#### Header
+
+Expects httpOnly cookie in header with JWT
+
+| name        | value          |
+|-------------|----------------|
+| accessToken | JSON Web Token |
+
+#### Body
+
+| key  | type   | example | required |
+|------|--------|---------|----------|
+| move | String | e2e4    | yes      |
+
+The value needs to be a move in the "pure coordinate notation". Otherwise, 
+it will be an illegal move.
+
+### ``GET /api/games/{gameId}/moves``
+
+Retrieves all moves made in a specific game
+
+### ``GET /api/games/{gameId}/events``
+
+Subscribes to a Server-Sent-Event stream sending updates of a game
+
 ### Players
