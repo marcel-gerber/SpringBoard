@@ -44,23 +44,23 @@ mvn test
 
 ## API Endpoints
 
-### Games
+## Games
 
-### ``GET /api/games``
+## ``GET /api/games``
 
 Retrieves all games
 
-### ``GET /api/games/{gameId}``
+## ``GET /api/games/{gameId}``
 
 Retrieves a specific game
 
-### ``POST /api/games``
+## ``POST /api/games``
 
 Creates a new game
 
-#### Request
+### Request
 
-#### Header
+### Header
 
 Expects httpOnly cookie in header with JWT
 
@@ -68,7 +68,7 @@ Expects httpOnly cookie in header with JWT
 |-------------|----------------|
 | accessToken | JSON Web Token |
 
-#### Body
+### Body
 
 | key   | type   | valid values | required |
 |-------|--------|--------------|----------|
@@ -77,13 +77,13 @@ Expects httpOnly cookie in header with JWT
 If the body is emtpy or the value is neither "white" nor "black", the default
 color will be white.
 
-### ``PUT /api/games/{gameId}``
+## ``PUT /api/games/{gameId}``
 
 Joins an existing game
 
-#### Request
+### Request
 
-#### Header
+### Header
 
 Expects httpOnly cookie in header with JWT
 
@@ -91,13 +91,13 @@ Expects httpOnly cookie in header with JWT
 |-------------|----------------|
 | accessToken | JSON Web Token |
 
-### ``PUT /api/games/{gameId}/moves``
+## ``PUT /api/games/{gameId}/moves``
 
 Play a move in a game
 
-#### Request
+### Request
 
-#### Header
+### Header
 
 Expects httpOnly cookie in header with JWT
 
@@ -105,7 +105,7 @@ Expects httpOnly cookie in header with JWT
 |-------------|----------------|
 | accessToken | JSON Web Token |
 
-#### Body
+### Body
 
 | key  | type   | example | required |
 |------|--------|---------|----------|
@@ -114,12 +114,12 @@ Expects httpOnly cookie in header with JWT
 The value needs to be a move in the "pure coordinate notation". Otherwise, 
 it will be an illegal move.
 
-### ``GET /api/games/{gameId}/moves``
+## ``GET /api/games/{gameId}/moves``
 
 Retrieves all moves made in a specific game
 
-### ``GET /api/games/{gameId}/events``
+## ``GET /api/games/{gameId}/events``
 
 Subscribes to a Server-Sent-Event stream sending updates of a game
 
-### Players
+## Players
