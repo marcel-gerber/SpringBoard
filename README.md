@@ -273,3 +273,94 @@ Retrieves one specific player.
     "id": "6733c6c89fe0365287f71878"
 }
 ````
+
+## ``POST /api/players/signup``
+
+Registers a new player.
+
+### Body
+
+| key      | type   | required |
+|----------|--------|----------|
+| username | String | yes      |
+| password | String | yes      |
+
+#### Example
+
+````json
+{
+    "username": "test",
+    "password": "123"
+}
+````
+
+#### Example response
+
+````json
+{
+    "username": "test",
+    "id": "6733c6c89fe0365287f71878"
+}
+````
+
+## ``POST /api/players/login``
+
+Login with credentials. The header of the response will contain a httpOnly cookie with a JSON Web Token, if
+the credentials were correct.
+
+### Body
+
+| key      | type   | required |
+|----------|--------|----------|
+| username | String | yes      |
+| password | String | yes      |
+
+### Example response
+
+````json
+{
+    "message": "Login successful",
+    "playerId": "6733c6c89fe0365287f71878"
+}
+````
+
+## ``GET /api/players/session``
+
+Validates a session. 
+
+### Header
+
+Expects httpOnly cookie in header with JWT
+
+| name        | value          |
+|-------------|----------------|
+| accessToken | JSON Web Token |
+
+### Example response
+
+````json
+{
+    "valid": true,
+    "playerId": "6733c6c89fe0365287f71878"
+}
+````
+
+## ``POST /api/players/logout``
+
+Logout and makes JSON Web Token invalid by putting it on a black list.
+
+### Header
+
+Expects httpOnly cookie in header with JWT
+
+| name        | value          |
+|-------------|----------------|
+| accessToken | JSON Web Token |
+
+### Example response
+
+````json
+{
+    "message": "Logout successful"
+}
+````
