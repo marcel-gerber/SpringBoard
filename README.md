@@ -1,6 +1,7 @@
 # SpringBoard
 
-Demo project using Spring Boot to build a REST API for playing chess.
+Demo project using Spring Boot to build a REST API for playing chess. The source code 
+for the frontend can be found [here](https://github.com/marcel-gerber/SpringBoard-Frontend).
 
 ## Features
 
